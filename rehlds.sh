@@ -25,8 +25,9 @@
 # 5.3 - Connecting automatically to steamcmd servers to check new updates from valve
 # New "option 3" to update server files.
 # 5.3.1 - small bug fixed.
+# 5.4 - new links updated.
 
-VERSION=5.3.1
+VERSION=5.4
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -68,7 +69,7 @@ generate_random_string() {
 
 check_version() {
 	echo "Tikrinama diegimo irankio versija..."
-	LATEST_VERSION=`wget -qO - https://raw.githubusercontent.com/likux35/rehlds-installer/main/rehlds.sh | grep "VERSION=[0-9]"`
+	LATEST_VERSION=`wget -qO - https://raw.githubusercontent.com/lukasenka/rehlds-installer/main/rehlds.sh | grep "VERSION=[0-9]"`
 	
 	if [ -z $LATEST_VERSION ]; then
 		echo "Klaida: Nepavyko patikrinti naujausios versijos is serverio. Nutraukiama..."
@@ -77,7 +78,7 @@ check_version() {
 	
 	if [ "VERSION=$VERSION" != $LATEST_VERSION ]; then
 		echo "Yra nauja diegimo irankio versija. Atsiunciama..."
-		wget -q -O installcs.tempfile https://raw.githubusercontent.com/likux35/rehlds-installer/main/rehlds.sh
+		wget -q -O installcs.tempfile https://raw.githubusercontent.com/lukasenka/rehlds-installer/main/rehlds.sh
 		if [ ! -e "installcs.tempfile" ]; then
 			echo "Klaida: Nepavyko gauti naujos diegimo irankio versijos is serverio..."
 			exit 1
@@ -637,32 +638,32 @@ fi
 cd $INSTALL_DIR/cstrike/dlls
 rm cs.so
 cd $INSTALL_DIR
-wget -q -P cstrike/dlls https://github.com/likux35/rehlds-installer/raw/main/cs.so
-wget -q -P cstrike https://github.com/likux35/rehlds-installer/raw/main/delta.lst
+wget -q -P cstrike/dlls https://github.com/lukasenka/rehlds-installer/raw/main/cs.so
+wget -q -P cstrike https://github.com/lukasenka/rehlds-installer/raw/main/delta.lst
 fi
 cd $INSTALL_DIR
 fi
 
-echo "instaliuojamas Amxmodx v. $(wget -T 5 -qO - https://raw.githubusercontent.com/likux35/rehlds-versions/main/amxx-version.txt) (Build: $(wget -T 5 -qO - https://raw.githubusercontent.com/likux35/rehlds-versions/main/amxx-build.txt)) ..."
-wget -q -P cstrike https://www.amxmodx.org/amxxdrop/$(wget -T 5 -qO - https://raw.githubusercontent.com/likux35/rehlds-versions/main/amxx-version.txt)/amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/likux35/rehlds-versions/main/amxx-build.txt)-base-linux.tar.gz
-if [ ! -e "cstrike/amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/likux35/rehlds-versions/main/amxx-build.txt)-base-linux.tar.gz" ]; then
+echo "instaliuojamas Amxmodx v. $(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-version.txt) (Build: $(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)) ..."
+wget -q -P cstrike https://www.amxmodx.org/amxxdrop/$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-version.txt)/amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)-base-linux.tar.gz
+if [ ! -e "cstrike/amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)-base-linux.tar.gz" ]; then
 	echo "Klaida: Nepavyko amxmodx failu is serverio. Nutraukiama..."
 	exit 1
 fi
-tar -xzf cstrike/amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/likux35/rehlds-versions/main/amxx-build.txt)-base-linux.tar.gz -C cstrike
-rm cstrike/amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/likux35/rehlds-versions/main/amxx-build.txt)-base-linux.tar.gz
+tar -xzf cstrike/amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)-base-linux.tar.gz -C cstrike
+rm cstrike/amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)-base-linux.tar.gz
 if [ "$UPDATE" -ne 1 ]; then
 echo "linux addons/amxmodx/dlls/amxmodx_mm_i386.so" >> cstrike/addons/metamod/plugins.ini
 fi
 
 mkdir $INSTALL_DIR/temp
 cd $INSTALL_DIR/temp
-wget https://www.amxmodx.org/amxxdrop/$(wget -T 5 -qO - https://raw.githubusercontent.com/likux35/rehlds-versions/main/amxx-version.txt)/amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/likux35/rehlds-versions/main/amxx-build.txt)-cstrike-linux.tar.gz
-if [ ! -e "amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/likux35/rehlds-versions/main/amxx-build.txt)-cstrike-linux.tar.gz" ]; then
+wget https://www.amxmodx.org/amxxdrop/$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-version.txt)/amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)-cstrike-linux.tar.gz
+if [ ! -e "amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)-cstrike-linux.tar.gz" ]; then
 	echo "Klaida: Nepavyko amxmodx cstrike failu is serverio. Nutraukiama..."
 	exit 1
 fi
-tar -xzf amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/likux35/rehlds-versions/main/amxx-build.txt)-cstrike-linux.tar.gz
+tar -xzf amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)-cstrike-linux.tar.gz
 cd $INSTALL_DIR/temp/addons/amxmodx/scripting
 mv statsx.sma $INSTALL_DIR/cstrike/addons/amxmodx/scripting/statsx.sma
 mv stats_logging.sma $INSTALL_DIR/cstrike/addons/amxmodx/scripting/stats_logging.sma
@@ -730,7 +731,7 @@ fi
 
 if [ $(($INSTALL_TYPE&$CHANGES)) != 0 ]; then
 echo "atliekami pakeitimai..."
-wget -q -O cstrike/_server.cfg https://raw.githubusercontent.com/likux35/rehlds-installer/main/server.cfg
+wget -q -O cstrike/_server.cfg https://raw.githubusercontent.com/lukasenka/rehlds-installer/main/server.cfg
 if [ ! -e "cstrike/_server.cfg" ]; then
 	echo "Klaida: Nepavyko gauti server.cfg failo is serverio. Nutraukiama..."
 	exit 1
@@ -954,10 +955,10 @@ else
     echo "Serveris instaliuotas direktorijoje '$INSTALL_DIR'"
     
     if [ $(($INSTALL_TYPE&$REGAMEDLL)) != 0 ]; then
-        echo "[INFO] ReHLDS VERSIJA: ${rehlds_url}, AMXX VERSIJA: $(wget -T 5 -qO - https://raw.githubusercontent.com/likux35/rehlds-versions/main/amxx-version.txt) (Build: $(wget -T 5 -qO - https://raw.githubusercontent.com/likux35/rehlds-versions/main/amxx-build.txt)), Metamod-r VERSIJA: ${metamodr_url}, Reunion VERSIJA: ${reunion_version}, ReGameDLL VERSIJA: ${regamedll_url}"
+        echo "[INFO] ReHLDS VERSIJA: ${rehlds_url}, AMXX VERSIJA: $(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-version.txt) (Build: $(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)), Metamod-r VERSIJA: ${metamodr_url}, Reunion VERSIJA: ${reunion_version}, ReGameDLL VERSIJA: ${regamedll_url}"
         echo "-------------------------------------------------------------------------------"
     else
-        echo "[INFO] ReHLDS VERSIJA: ${rehlds_url}, AMXX VERSIJA: $(wget -T 5 -qO - https://raw.githubusercontent.com/likux35/rehlds-versions/main/amxx-version.txt) (Build: $(wget -T 5 -qO - https://raw.githubusercontent.com/likux35/rehlds-versions/main/amxx-build.txt)), Metamod-r VERSIJA: ${metamodr_url}, Reunion VERSIJA: ${reunion_version}"
+        echo "[INFO] ReHLDS VERSIJA: ${rehlds_url}, AMXX VERSIJA: $(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-version.txt) (Build: $(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)), Metamod-r VERSIJA: ${metamodr_url}, Reunion VERSIJA: ${reunion_version}"
         echo "-------------------------------------------------------------------------------"
     fi
 

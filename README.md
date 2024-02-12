@@ -15,7 +15,7 @@ __HLDS SYSTEM FILES NEW UPDATE__ -> __NO__
 ``
 
 ``
-wget https://raw.githubusercontent.com/likux35/rehlds-installer/main/rehlds.sh
+wget https://raw.githubusercontent.com/lukasenka/rehlds-installer/main/rehlds.sh
 ``
 
 ``

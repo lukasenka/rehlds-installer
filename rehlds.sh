@@ -26,8 +26,9 @@
 # New "option 3" to update server files.
 # 5.3.1 - small bug fixed.
 # 5.4 - new links updated.
+# 5.4.1 - small update with steamcmd.
 
-VERSION=5.4
+VERSION=5.4.1
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -338,14 +339,18 @@ chmod +x hlds_run hlds_linux
 
 echo "[SteamCMD] Tikrinama ir instaliuojama nauja hlds failu versija...";
 cd $INSTALL_DIR
-mkdir steamcmd
-cd $INSTALL_DIR/steamcmd
-curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
 
-if [ ! -e "steamcmd.sh" ]; then
-	echo "[SteamCMD] Klaida: Nepavyko gauti SteamCMD failu is serverio. Nutraukiama..."
-	exit 1
-fi
+if [ ! -e "$INSTALL_DIR/steamcmd.sh" ]; then
+	mkdir steamcmd
+    
+	cd $INSTALL_DIR/steamcmd
+	curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
+
+	if [ ! -e "steamcmd.sh" ]; then
+		echo "[SteamCMD] Klaida: Nepavyko gauti SteamCMD failu is serverio. Nutraukiama..."
+		exit 1
+	fi
+ fi
 
 ./steamcmd.sh +force_install_dir $INSTALL_DIR +login anonymous +app_update 90 validate +quit
 
@@ -357,8 +362,6 @@ if [ $EXITVAL -gt 0 ]; then
 fi
 
 echo "[SteamCMD] [OK] Failai atsiusti sekmingai.";
-
-rm -rf steamcmd
 
 fi
 
@@ -766,15 +769,19 @@ fi
 
 if [ $(($INSTALL_TYPE&$SYSTEM_STEAMCMD)) != 0 ]; then
 echo "[SteamCMD] Tikrinama ir instaliuojama nauja hlds failu versija...";
-cd $INSTALL_DIR
-mkdir steamcmd
-cd $INSTALL_DIR/steamcmd
-curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
 
-if [ ! -e "steamcmd.sh" ]; then
-	echo "[SteamCMD] Klaida: Nepavyko gauti SteamCMD failu is serverio. Nutraukiama..."
-	exit 1
-fi
+cd $INSTALL_DIR
+
+if [ ! -e "$INSTALL_DIR/steamcmd.sh" ]; then
+	mkdir steamcmd
+	cd $INSTALL_DIR/steamcmd
+	curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
+
+	if [ ! -e "steamcmd.sh" ]; then
+		echo "[SteamCMD] Klaida: Nepavyko gauti SteamCMD failu is serverio. Nutraukiama..."
+		exit 1
+	fi
+ fi
 
 ./steamcmd.sh +force_install_dir $INSTALL_DIR +login anonymous +app_update 90 validate +quit
 
@@ -788,7 +795,6 @@ fi
 echo "[SteamCMD] [WARNING] Testas baigesi sekmingai, taciau reikia is naujo sudiegti ReHLDS ir ReGameDLL (jei toks buvo).";
 
 cd $INSTALL_DIR
-rm -rf steamcmd
 
 echo "Instaliuojamas ReHLDS v. ${rehlds_url} ..."
 

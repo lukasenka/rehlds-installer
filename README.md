@@ -7,8 +7,6 @@ __Metamod-r__ -> [![metamodr](https://img.shields.io/github/release/theAsmodai/m
 __ReGameDLL__ -> [![regamedll](https://img.shields.io/github/release/s1lentq/ReGameDLL_CS.svg)](https://github.com/s1lentq/ReGameDLL_CS/releases)  
 __Reunion__ -> [![amxmodx](https://img.shields.io/badge/release-v.0.1.0.137-blue)](https://dev-cs.ru/resources/585/updates)  
 
-__HLDS SYSTEM FILES NEW UPDATE__ -> __NO__
-
 # Instaliacija
 
 ``cd /root/

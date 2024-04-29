@@ -26,9 +26,9 @@
 # New "option 3" to update server files.
 # 5.3.1 - small bug fixed.
 # 5.4 - new links updated.
-# 5.4.1 - small update with steamcmd.
+# 5.4.1 - 5.4.2 - small update with steamcmd.
 
-VERSION=5.4.1
+VERSION=5.4.2
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -340,7 +340,7 @@ chmod +x hlds_run hlds_linux
 echo "[SteamCMD] Tikrinama ir instaliuojama nauja hlds failu versija...";
 cd $INSTALL_DIR
 
-if [ ! -e "$INSTALL_DIR/steamcmd.sh" ]; then
+if [ ! -e "$INSTALL_DIR/steamcmd/steamcmd.sh" ]; then
 	mkdir steamcmd
     
 	cd $INSTALL_DIR/steamcmd
@@ -772,7 +772,7 @@ echo "[SteamCMD] Tikrinama ir instaliuojama nauja hlds failu versija...";
 
 cd $INSTALL_DIR
 
-if [ ! -e "$INSTALL_DIR/steamcmd.sh" ]; then
+if [ ! -e "$INSTALL_DIR/steamcmd/steamcmd.sh" ]; then
 	mkdir steamcmd
 	cd $INSTALL_DIR/steamcmd
 	curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -

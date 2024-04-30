@@ -27,8 +27,9 @@
 # 5.3.1 - small bug fixed.
 # 5.4 - new links updated.
 # 5.4.1 - 5.4.2 - small update with steamcmd.
+# 5.4.3 - full fixes for steamcmd.
 
-VERSION=5.4.2
+VERSION=5.4.3
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -327,6 +328,7 @@ echo "--------------------------------------------------------------------------
 if [ "$UPDATE" -eq 0 ] || [ "$UPDATE_RDLL" -eq 0 ]; then
 
 echo "Siunciami hlds failai ..."
+sleep 2
 cd $INSTALL_DIR
 wget -O _hlds.tar.gz "https://www.dropbox.com/scl/fi/wds2tixwmuash5bpdws2i/hlds.tar.gz?rlkey=s6bnlmvemt7c06v754g8658dz&dl=1"
 if [ ! -e "_hlds.tar.gz" ]; then
@@ -338,6 +340,7 @@ rm _hlds.tar.gz
 chmod +x hlds_run hlds_linux
 
 echo "[SteamCMD] Tikrinama ir instaliuojama nauja hlds failu versija...";
+sleep 2
 cd $INSTALL_DIR
 
 if [ ! -e "$INSTALL_DIR/steamcmd/steamcmd.sh" ]; then
@@ -350,7 +353,9 @@ if [ ! -e "$INSTALL_DIR/steamcmd/steamcmd.sh" ]; then
 		echo "[SteamCMD] Klaida: Nepavyko gauti SteamCMD failu is serverio. Nutraukiama..."
 		exit 1
 	fi
- fi
+fi
+
+cd $INSTALL_DIR/steamcmd
 
 ./steamcmd.sh +force_install_dir $INSTALL_DIR +login anonymous +app_update 90 validate +quit
 
@@ -359,8 +364,10 @@ if [ $EXITVAL -gt 0 ]; then
 	echo "-------------------------------------------------------------------------------"
 	echo "SteamCMD vidine klaida. Klaidos kodas: $EXITVAL"
 	echo "Instaliacija nutraukiama..."
+        exit 1
 fi
 
+sleep 2
 echo "[SteamCMD] [OK] Failai atsiusti sekmingai.";
 
 fi
@@ -391,6 +398,7 @@ fi
 echo "-------------------------------------------------------------------------------"
 if [ $(($INSTALL_TYPE&$METAMOD)) != 0 ]; then
 echo "instaliuojamas Rehlds v. ${rehlds_url} ir Metamod v. ${metamodr_url}."
+sleep 2
 if [ "$UPDATE" -ne 1 ]; then
 mkdir -p cstrike/addons
 mkdir -p cstrike/addons/metamod
@@ -444,6 +452,7 @@ mv engine_i486s.so engine_i486.so
 rm -rf bin
 rm rehlds-bin-${rehlds_url}.zip
 echo "Rehlds v. ${rehlds_url} diegimas sekmingas."
+sleep 2
 
 mkdir $INSTALL_DIR/meta
 cd $INSTALL_DIR/meta
@@ -460,6 +469,7 @@ mv metamod_i386s.so metamod_i386.so
 cd $INSTALL_DIR
 rm -rf meta
 echo "Metamod v. ${metamodr_url} diegimas sekmingas."
+sleep 2
 
 if [ ! -e "cstrike/addons/metamod/dlls/metamod_i386.so" ]; then
 	echo "Klaida: Nepavyko gauti metamod arba engine failo is serverio. Nutraukiama..."
@@ -483,7 +493,8 @@ rm reunion.cfg
 cd $INSTALL_DIR
 fi
 
-echo "instaliuojamas Reunion v. ${reunion_version}"
+echo "instaliuojamas Reunion v. ${reunion_version} ..."
+sleep 2
 mkdir $INSTALL_DIR/reu-temp
 cd $INSTALL_DIR/reu-temp
 wget $reunion_url
@@ -499,6 +510,7 @@ if [ -d "reunion_${reunion_version}" ]; then
     random_string=$(generate_random_string 34)
     sed -i "s/^SteamIdHashSalt =.*/SteamIdHashSalt = $random_string/" reunion.cfg
     echo "Reunion v. $reunion_version. Sukonfiguruota sekmingai."
+    sleep 2
 
     mv reunion.cfg $INSTALL_DIR/cstrike
     cd bin/Linux
@@ -522,6 +534,7 @@ if [ ! -e "cstrike/addons/reunion/reunion_mm_i386.so" ] || [ ! -e "cstrike/reuni
 fi
 
 echo "Reunion v. ${reunion_version} diegimas sekmingas."
+sleep 2
 
 if [ "$UPDATE" -ne 1 ]; then
 echo "linux addons/reunion/reunion_mm_i386.so" >> cstrike/addons/metamod/plugins.ini
@@ -534,6 +547,7 @@ echo "Isvalomi seni failai ..."
 echo "-------------------------------"
 echo "Demesio! Reikalingi failai bus pakeisti *-old galune."
 echo "--------------------------------"
+sleep 2
 cd $INSTALL_DIR/cstrike/addons/amxmodx/configs
 mv maps.ini maps-old.ini
 rm cvars.ini
@@ -648,6 +662,7 @@ cd $INSTALL_DIR
 fi
 
 echo "instaliuojamas Amxmodx v. $(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-version.txt) (Build: $(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)) ..."
+sleep 2
 wget -q -P cstrike https://www.amxmodx.org/amxxdrop/$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-version.txt)/amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)-base-linux.tar.gz
 if [ ! -e "cstrike/amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)-base-linux.tar.gz" ]; then
 	echo "Klaida: Nepavyko amxmodx failu is serverio. Nutraukiama..."
@@ -745,6 +760,7 @@ fi
 
 if [ $(($INSTALL_TYPE&$REGAMEDLL)) != 0 ]; then
 echo "instaliuojamas ReGameDLL v. ${regamedll_url}..."
+sleep 2
 cd $INSTALL_DIR
 wget https://github.com/s1lentq/ReGameDLL_CS/releases/download/${regamedll_url}/regamedll-bin-${regamedll_url}.zip
 if [ ! -e "regamedll-bin-${regamedll_url}.zip" ]; then
@@ -769,6 +785,7 @@ fi
 
 if [ $(($INSTALL_TYPE&$SYSTEM_STEAMCMD)) != 0 ]; then
 echo "[SteamCMD] Tikrinama ir instaliuojama nauja hlds failu versija...";
+sleep 2
 
 cd $INSTALL_DIR
 
@@ -781,7 +798,9 @@ if [ ! -e "$INSTALL_DIR/steamcmd/steamcmd.sh" ]; then
 		echo "[SteamCMD] Klaida: Nepavyko gauti SteamCMD failu is serverio. Nutraukiama..."
 		exit 1
 	fi
- fi
+fi
+
+cd $INSTALL_DIR/steamcmd
 
 ./steamcmd.sh +force_install_dir $INSTALL_DIR +login anonymous +app_update 90 validate +quit
 
@@ -790,9 +809,11 @@ if [ $EXITVAL -gt 0 ]; then
 	echo "-------------------------------------------------------------------------------"
 	echo "SteamCMD vidine klaida. Klaidos kodas: $EXITVAL"
 	echo "Instaliacija nutraukiama..."
+	exit 1
 fi
 
 echo "[SteamCMD] [WARNING] Testas baigesi sekmingai, taciau reikia is naujo sudiegti ReHLDS ir ReGameDLL (jei toks buvo).";
+sleep 2
 
 cd $INSTALL_DIR
 
@@ -865,6 +886,7 @@ fi
 cd $INSTALL_DIR
 
 echo "instaliuojamas ReGameDLL v. ${regamedll_url}..."
+sleep 2
 cd $INSTALL_DIR
 wget https://github.com/s1lentq/ReGameDLL_CS/releases/download/${regamedll_url}/regamedll-bin-${regamedll_url}.zip
 if [ ! -e "regamedll-bin-${regamedll_url}.zip" ]; then

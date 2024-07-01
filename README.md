@@ -1,4 +1,4 @@
-# rehlds-installer (v5.4.3)
+# rehlds-installer (v5.5)
 ReHLDS installation script (Extended support)
 
 __ReHLDS__ -> [![rehlds](https://img.shields.io/github/release/dreamstalker/rehlds.svg)](https://github.com/dreamstalker/rehlds/releases)  

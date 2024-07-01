@@ -28,8 +28,10 @@
 # 5.4 - new links updated.
 # 5.4.1 - 5.4.2 - small update with steamcmd.
 # 5.4.3 - full fixes for steamcmd.
+# 5.5 - always checking for app 90 (cstrike) new build released
+# from steamcmd, if not, installation will be aborted.
 
-VERSION=5.4.3
+VERSION=5.5
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -212,6 +214,155 @@ check_dir() {
 	fi
 }
 
+check_app90_version()
+{
+	echo "[SteamCMD] Just a minute ...";
+ 	sleep 2
+
+	STEAMCMD_PATH="$INSTALL_DIR/steamcmd/steamcmd.sh"
+	VERSION_FILE="$INSTALL_DIR/steamcmd/app90_version.txt"
+
+	APP_ID=90
+
+	get_current_version() {
+    		$STEAMCMD_PATH +login anonymous +app_info_update 1 +app_info_print $APP_ID +quit | grep -A 5 '"branches"' | grep -m 1 '"buildid"' | grep -oP '\d+'
+	}
+
+	CURRENT_VERSION=$(get_current_version)
+
+	if [[ -f "$VERSION_FILE" ]]; then
+    		STORED_VERSION=$(cat "$VERSION_FILE")
+	else
+    		STORED_VERSION=""
+	fi
+
+	if [[ "$CURRENT_VERSION" != "$STORED_VERSION" ]]; then
+    		echo "[SteamCMD] New version detected for app $APP_ID: $CURRENT_VERSION"
+    		echo "$CURRENT_VERSION" > "$VERSION_FILE"
+
+      		echo "[SteamCMD] Installing new version... Please wait."
+
+      		cd $INSTALL_DIR/steamcmd
+
+		./steamcmd.sh +force_install_dir $INSTALL_DIR +login anonymous +app_update 90 validate +quit
+
+		EXITVAL=$?
+		if [ $EXITVAL -gt 0 ]; then
+			echo "-------------------------------------------------------------------------------"
+			echo "SteamCMD vidine klaida. Klaidos kodas: $EXITVAL"
+			echo "Instaliacija nutraukiama..."
+        		exit 1
+		fi
+
+  		if [ $(($INSTALL_TYPE&$SYSTEM_STEAMCMD)) != 0 ]; then
+
+		echo "[SteamCMD] [WARNING] Testas baigesi sekmingai, taciau reikia is naujo sudiegti ReHLDS ir ReGameDLL (jei toks buvo).";
+		sleep 2
+
+		cd $INSTALL_DIR
+
+		echo "Instaliuojamas ReHLDS v. ${rehlds_url} ..."
+
+		wget https://github.com/dreamstalker/rehlds/releases/download/${rehlds_url}/rehlds-bin-${rehlds_url}.zip
+		unzip rehlds-bin-${rehlds_url}.zip
+		rm -rf hlsdk
+
+		mv $INSTALL_DIR/bin/linux32/valve/dlls/director.so $INSTALL_DIR/valve/dlls/directors.so
+		cd $INSTALL_DIR/valve/dlls
+		rm director.so
+		mv directors.so director.so
+
+		cd $INSTALL_DIR/bin/linux32
+		mv proxy.so $INSTALL_DIR/proxys.so
+		cd $INSTALL_DIR
+		rm proxy.so
+		mv proxys.so proxy.so
+
+		cd $INSTALL_DIR/bin/linux32
+		mv hltv $INSTALL_DIR/hltvs
+		cd $INSTALL_DIR
+		rm hltv
+		mv hltvs hltv
+
+		cd $INSTALL_DIR/bin/linux32
+		mv demoplayer.so $INSTALL_DIR/demoplayers.so
+		cd $INSTALL_DIR
+		rm demoplayer.so
+		mv demoplayers.so demoplayer.so
+
+		cd $INSTALL_DIR/bin/linux32
+		mv core.so $INSTALL_DIR/cores.so
+		cd $INSTALL_DIR
+		rm core.so
+		mv cores.so core.so
+
+		cd $INSTALL_DIR/bin/linux32
+		mv hlds_linux $INSTALL_DIR/hlds_linuxs
+		cd $INSTALL_DIR
+		rm hlds_linux
+		mv hlds_linuxs hlds_linux
+		chmod +x hlds_linux
+
+		cd $INSTALL_DIR/bin/linux32
+		mv engine_i486.so $INSTALL_DIR/engine_i486s.so
+		cd $INSTALL_DIR
+		rm engine_i486.so
+		mv engine_i486s.so engine_i486.so
+		rm -rf bin
+		rm rehlds-bin-${rehlds_url}.zip
+		echo "Rehlds v. ${rehlds_url} diegimas sekmingas."
+
+		if [ -d "cstrike/game.cfg" ]; then
+			cd $INSTALL_DIR/cstrike
+   
+			if [ -e "game.cfg" ]; then
+    				rm game.cfg
+			fi
+
+			if [ -e "game_init.cfg" ]; then
+    				rm game_init.cfg
+			fi
+
+			if [ -e "delta.lst" ]; then
+    				rm delta.lst
+			fi
+
+			cd $INSTALL_DIR
+
+			echo "instaliuojamas ReGameDLL v. ${regamedll_url}..."
+			sleep 2
+			cd $INSTALL_DIR
+			wget https://github.com/s1lentq/ReGameDLL_CS/releases/download/${regamedll_url}/regamedll-bin-${regamedll_url}.zip
+   
+			if [ ! -e "regamedll-bin-${regamedll_url}.zip" ]; then
+				echo "Klaida: Nepavyko gauti ReGameDLL failu is serverio. Nutraukiama..."
+				exit 1
+			fi
+   
+			unzip regamedll-bin-${regamedll_url}.zip
+			rm -rf cssdk
+			cd $INSTALL_DIR/bin/linux32/cstrike/dlls
+			mv cs.so $INSTALL_DIR/cstrike/dlls/css.so
+			cd $INSTALL_DIR/cstrike/dlls
+			rm cs.so
+			mv css.so cs.so
+			cd $INSTALL_DIR/bin/linux32/cstrike
+			mv game_init.cfg $INSTALL_DIR/cstrike
+			mv game.cfg $INSTALL_DIR/cstrike
+			mv delta.lst $INSTALL_DIR/cstrike
+			cd $INSTALL_DIR
+			rm -rf bin
+			rm regamedll-bin-${regamedll_url}.zip
+	fi
+
+fi
+  
+else
+    	echo "[SteamCMD] Version has not changed for app $APP_ID: $CURRENT_VERSION"
+fi
+}
+
+
 check_version
 check_packages
 
@@ -339,8 +490,6 @@ tar zxvf _hlds.tar.gz
 rm _hlds.tar.gz
 chmod +x hlds_run hlds_linux
 
-echo "[SteamCMD] Tikrinama ir instaliuojama nauja hlds failu versija...";
-sleep 2
 cd $INSTALL_DIR
 
 if [ ! -e "$INSTALL_DIR/steamcmd/steamcmd.sh" ]; then
@@ -355,20 +504,7 @@ if [ ! -e "$INSTALL_DIR/steamcmd/steamcmd.sh" ]; then
 	fi
 fi
 
-cd $INSTALL_DIR/steamcmd
-
-./steamcmd.sh +force_install_dir $INSTALL_DIR +login anonymous +app_update 90 validate +quit
-
-EXITVAL=$?
-if [ $EXITVAL -gt 0 ]; then
-	echo "-------------------------------------------------------------------------------"
-	echo "SteamCMD vidine klaida. Klaidos kodas: $EXITVAL"
-	echo "Instaliacija nutraukiama..."
-        exit 1
-fi
-
-sleep 2
-echo "[SteamCMD] [OK] Failai atsiusti sekmingai.";
+check_app90_version
 
 fi
 
@@ -800,114 +936,7 @@ if [ ! -e "$INSTALL_DIR/steamcmd/steamcmd.sh" ]; then
 	fi
 fi
 
-cd $INSTALL_DIR/steamcmd
-
-./steamcmd.sh +force_install_dir $INSTALL_DIR +login anonymous +app_update 90 validate +quit
-
-EXITVAL=$?
-if [ $EXITVAL -gt 0 ]; then
-	echo "-------------------------------------------------------------------------------"
-	echo "SteamCMD vidine klaida. Klaidos kodas: $EXITVAL"
-	echo "Instaliacija nutraukiama..."
-	exit 1
-fi
-
-echo "[SteamCMD] [WARNING] Testas baigesi sekmingai, taciau reikia is naujo sudiegti ReHLDS ir ReGameDLL (jei toks buvo).";
-sleep 2
-
-cd $INSTALL_DIR
-
-echo "Instaliuojamas ReHLDS v. ${rehlds_url} ..."
-
-wget https://github.com/dreamstalker/rehlds/releases/download/${rehlds_url}/rehlds-bin-${rehlds_url}.zip
-unzip rehlds-bin-${rehlds_url}.zip
-rm -rf hlsdk
-
-mv $INSTALL_DIR/bin/linux32/valve/dlls/director.so $INSTALL_DIR/valve/dlls/directors.so
-cd $INSTALL_DIR/valve/dlls
-rm director.so
-mv directors.so director.so
-
-cd $INSTALL_DIR/bin/linux32
-mv proxy.so $INSTALL_DIR/proxys.so
-cd $INSTALL_DIR
-rm proxy.so
-mv proxys.so proxy.so
-
-cd $INSTALL_DIR/bin/linux32
-mv hltv $INSTALL_DIR/hltvs
-cd $INSTALL_DIR
-rm hltv
-mv hltvs hltv
-
-cd $INSTALL_DIR/bin/linux32
-mv demoplayer.so $INSTALL_DIR/demoplayers.so
-cd $INSTALL_DIR
-rm demoplayer.so
-mv demoplayers.so demoplayer.so
-
-cd $INSTALL_DIR/bin/linux32
-mv core.so $INSTALL_DIR/cores.so
-cd $INSTALL_DIR
-rm core.so
-mv cores.so core.so
-
-cd $INSTALL_DIR/bin/linux32
-mv hlds_linux $INSTALL_DIR/hlds_linuxs
-cd $INSTALL_DIR
-rm hlds_linux
-mv hlds_linuxs hlds_linux
-chmod +x hlds_linux
-
-cd $INSTALL_DIR/bin/linux32
-mv engine_i486.so $INSTALL_DIR/engine_i486s.so
-cd $INSTALL_DIR
-rm engine_i486.so
-mv engine_i486s.so engine_i486.so
-rm -rf bin
-rm rehlds-bin-${rehlds_url}.zip
-echo "Rehlds v. ${rehlds_url} diegimas sekmingas."
-
-if [ -d "cstrike/game.cfg" ]; then
-
-cd $INSTALL_DIR/cstrike
-if [ -e "game.cfg" ]; then
-    rm game.cfg
-fi
-
-if [ -e "game_init.cfg" ]; then
-    rm game_init.cfg
-fi
-
-if [ -e "delta.lst" ]; then
-    rm delta.lst
-fi
-
-cd $INSTALL_DIR
-
-echo "instaliuojamas ReGameDLL v. ${regamedll_url}..."
-sleep 2
-cd $INSTALL_DIR
-wget https://github.com/s1lentq/ReGameDLL_CS/releases/download/${regamedll_url}/regamedll-bin-${regamedll_url}.zip
-if [ ! -e "regamedll-bin-${regamedll_url}.zip" ]; then
-	echo "Klaida: Nepavyko gauti ReGameDLL failu is serverio. Nutraukiama..."
-	exit 1
-fi
-unzip regamedll-bin-${regamedll_url}.zip
-rm -rf cssdk
-cd $INSTALL_DIR/bin/linux32/cstrike/dlls
-mv cs.so $INSTALL_DIR/cstrike/dlls/css.so
-cd $INSTALL_DIR/cstrike/dlls
-rm cs.so
-mv css.so cs.so
-cd $INSTALL_DIR/bin/linux32/cstrike
-mv game_init.cfg $INSTALL_DIR/cstrike
-mv game.cfg $INSTALL_DIR/cstrike
-mv delta.lst $INSTALL_DIR/cstrike
-cd $INSTALL_DIR
-rm -rf bin
-rm regamedll-bin-${regamedll_url}.zip
-fi
+check_app90_version
 
 fi
 

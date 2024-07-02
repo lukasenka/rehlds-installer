@@ -5,7 +5,7 @@
 # amxmodx.lt (nebeaktyvus)
 # saimon.lt
 
-VERSION=5.5
+VERSION=5.6
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -30,6 +30,11 @@ metamodr_url=$(wget -qO - https://img.shields.io/github/release/theAsmodai/metam
 reunion_version=$(wget -qO - https://dev-cs.ru/resources/585/updates | grep -oP '<td class="dataList-cell">\K[^<]+' | head -n 1)
 reunion_part_url=$(wget -qO - https://dev-cs.ru/resources/585/updates | grep -oP '<td class="dataList-cell dataList-cell--action"><a href="\K[^"]+' | head -n 1)
 reunion_url="https://dev-cs.ru$reunion_part_url"
+
+#amxx build number
+amxx_build_url='https://www.amxmodx.org/downloads-new.php?branch=master&all=1'
+html=$(curl -s "$amxx_build_url")
+amxx_build_version=$(echo "$html" | grep -oP '<strong>\K[0-9]+\.[0-9]+ - build \K[0-9]+' | awk '{print $1""$2}')
 
 ip_url="https://api.ipify.org"
 
@@ -142,6 +147,44 @@ check_dir() {
         		((NUMBER++))
         		INSTALL_DIR="$MAIN_DIR/$SERVER_DIR$NUMBER"
     		done
+		else
+			if screen -list | grep -q "$SERVER_DIR"; then
+				screen -S $SERVER_DIR -p 0 -X stuff "amxx version$(printf '\r')"
+				screen -S $SERVER_DIR -p 0 -X stuff "meta version$(printf '\r')"
+				screen -S $SERVER_DIR -p 0 -X stuff "version$(printf '\r')"
+				screen -S $SERVER_DIR -p 0 -X stuff "game version$(printf '\r')"
+				screen -S $SERVER_DIR -X hardcopy $INSTALL_DIR/output.txt
+
+				screen -S $SERVER_DIR -p 0 -X stuff "meta list$(printf '\r')"
+				screen -S $SERVER_DIR -X hardcopy $INSTALL_DIR/output2.txt
+
+				amxx_version=$(grep "AMX Mod X" $INSTALL_DIR/output.txt | awk '{print $4}')
+				if [ -z "$amxx_version" ]; then
+    					amxx_version="null"
+				fi
+
+				meta_version=$(grep "Metamod-r v" $INSTALL_DIR/output.txt | awk '{print $2 " " $3}')
+				if [ -z "$meta_version" ]; then
+    					meta_version="null"
+				fi
+
+				rehlds_version=$(grep "ReHLDS version" $INSTALL_DIR/output.txt | awk '{print $3}')
+				if [ -z "$rehlds_version" ]; then
+    					rehlds_version="null"
+				fi
+
+				my_reunion_version=$(awk '$3 == "Reunion" {print $7}' "$INSTALL_DIR/output2.txt")
+				if [ -z "$my_reunion_version" ]; then
+    					my_reunion_version="null"
+				fi
+			else
+				amxx_version="OFFLINE"
+				meta_version="OFFLINE"
+				rehlds_version="OFFLINE"
+				my_reunion_version="OFFLINE"
+				
+			fi
+
       		fi
       
 		echo "Instaliuoti i '$INSTALL_DIR'?"
@@ -173,6 +216,8 @@ check_dir() {
 		
 		case "$MENU_NUMBER" in
 		"1")
+			rm -f output2.txt
+			rm -f output.txt
 			return 0
 			;;
 		"2")
@@ -383,6 +428,15 @@ echo "1. [rehlds][metamod-r][reunion][amxmodx] | (steam / non-steam) (Rekomenduo
 echo "2. [rehlds][metamod-r][reunion][amxmodx] + ReGameDLL | (steam / non-steam)"
 echo "-------------------------------------------------------------------------------"
 else
+echo "-------------------------------------------------------------------------------"
+echo "            [rehlds]                              [metamod-r]                  "
+echo "-------------------------------------------------------------------------------"
+echo "$rehlds_version -> $rehlds_url-dev |  $meta_version -> v$metamodr_url, API"
+echo "-------------------------------------------------------------------------------"
+echo "            [reunion]         [amxmodx]            	     "
+echo "-------------------------------------------------------------------------------"
+echo "$my_reunion_version -> v$reunion_version | $amxx_version -> 1.10.0.$amxx_build_version"
+echo "-------------------------------------------------------------------------------"
 echo "--- Pasirinkite modifikacijas, kurios bus atnaujintos: ------------------------"
 echo "([modifikacija] | (serverio tipas)):"
 echo "1. [--> UPDATE <-- ] [rehlds][metamod-r][reunion][amxmodx] | (steam / non-steam)"

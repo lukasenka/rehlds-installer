@@ -5,7 +5,7 @@
 # amxmodx.lt (nebeaktyvus)
 # saimon.lt
 
-VERSION=5.6
+VERSION=5.7
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -26,10 +26,8 @@ rehlds_url=$(wget -qO - https://img.shields.io/github/v/release/dreamstalker/reh
 regamedll_url=$(wget -qO - https://img.shields.io/github/release/s1lentq/ReGameDLL_CS.svg | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')
 metamodr_url=$(wget -qO - https://img.shields.io/github/release/theAsmodai/metamod-r.svg | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')
 
-#reunion downloader
-reunion_version=$(wget -qO - https://dev-cs.ru/resources/585/updates | grep -oP '<td class="dataList-cell">\K[^<]+' | head -n 1)
-reunion_part_url=$(wget -qO - https://dev-cs.ru/resources/585/updates | grep -oP '<td class="dataList-cell dataList-cell--action"><a href="\K[^"]+' | head -n 1)
-reunion_url="https://dev-cs.ru$reunion_part_url"
+#reunion version
+reunion_version=$(wget -qO - https://img.shields.io/github/v/release/s1lentq/reunion.svg | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')
 
 #amxx build number
 amxx_build_url='https://www.amxmodx.org/downloads-new.php?branch=master&all=1'
@@ -661,18 +659,19 @@ echo "instaliuojamas Reunion v. ${reunion_version} ..."
 sleep 2
 mkdir $INSTALL_DIR/reu-temp
 cd $INSTALL_DIR/reu-temp
-wget $reunion_url
-if [ ! -e "download" ]; then
-	echo "Klaida: Nepavyko gauti Reunion failu is serverio https://dev-cs.ru. Nutraukiama..."
+wget https://github.com/s1lentq/reunion/releases/download/${reunion_version}/reunion-${reunion_version}.zip
+if [ ! -e "reunion-${reunion_version}.zip" ]; then
+	echo "Klaida: Nepavyko gauti reunion failu is github serverio. Nutraukiama..."
 	exit 1
 fi
-mv download reunion.zip
-unzip reunion.zip
+unzip reunion-${reunion_version}.zip
 if [ -d "reunion_${reunion_version}" ]; then
     cd "reunion_${reunion_version}"
     
     random_string=$(generate_random_string 34)
     sed -i "s/^SteamIdHashSalt =.*/SteamIdHashSalt = $random_string/" reunion.cfg
+    sed -i 's/cid_NoSteam47 = [0-9]\+/cid_NoSteam47 = 3/' reunion.cfg
+    sed -i 's/cid_NoSteam48 = [0-9]\+/cid_NoSteam48 = 3/' reunion.cfg
     echo "Reunion v. $reunion_version. Sukonfiguruota sekmingai."
     sleep 2
 
@@ -682,6 +681,8 @@ if [ -d "reunion_${reunion_version}" ]; then
 else
     random_string=$(generate_random_string 34)
     sed -i "s/^SteamIdHashSalt =.*/SteamIdHashSalt = $random_string/" reunion.cfg
+    sed -i 's/cid_NoSteam47 = [0-9]\+/cid_NoSteam47 = 3/' reunion.cfg
+    sed -i 's/cid_NoSteam48 = [0-9]\+/cid_NoSteam48 = 3/' reunion.cfg
     echo "Reunion v. $reunion_version. Sukonfiguruota sekmingai."
     
     mv reunion.cfg $INSTALL_DIR/cstrike
@@ -693,7 +694,7 @@ cd $INSTALL_DIR
 rm -rf reu-temp
 
 if [ ! -e "cstrike/addons/reunion/reunion_mm_i386.so" ] || [ ! -e "cstrike/reunion.cfg" ]; then
-	echo "Klaida: Nepavyko gauti Reunion failu is serverio https://dev-cs.ru. Nutraukiama..."
+	echo "Klaida: Nepavyko gauti Reunion failu is github serverio. Nutraukiama..."
 	exit 1
 fi
 

@@ -24,3 +24,6 @@
 #### 5.4.3 - full fixes for steamcmd.
 #### 5.5 - always checking for app 90 (cstrike) new build released from steamcmd, if not, installation will be aborted.
 #### 5.6 - new era of seeing currently installed versions (opcion 2). If server not turned on, "offline" text appears.
+####v5.7 release.
+####- New reunion download link (Reunion developer migrated own product to github)
+####- Small optimization for reunion configuration.

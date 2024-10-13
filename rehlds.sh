@@ -5,7 +5,7 @@
 # amxmodx.lt (nebeaktyvus)
 # saimon.lt
 
-VERSION=5.7
+VERSION=5.7.2
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -261,7 +261,7 @@ check_app90_version()
 
       		cd $INSTALL_DIR/steamcmd
 
-		./steamcmd.sh +force_install_dir $INSTALL_DIR +login anonymous +app_update 90 validate +quit
+		./steamcmd.sh +force_install_dir $INSTALL_DIR +login anonymous +app_update 90 -beta steam_legacy validate +quit
 
 		EXITVAL=$?
 		if [ $EXITVAL -gt 0 ]; then
@@ -507,7 +507,7 @@ if [ "$UPDATE" -eq 0 ] || [ "$UPDATE_RDLL" -eq 0 ]; then
 echo "Siunciami hlds failai ..."
 sleep 2
 cd $INSTALL_DIR
-wget -O _hlds.tar.gz "https://www.dropbox.com/scl/fi/wds2tixwmuash5bpdws2i/hlds.tar.gz?rlkey=s6bnlmvemt7c06v754g8658dz&dl=1"
+wget -O _hlds.tar.gz "https://www.dropbox.com/scl/fi/qddwy787rbc751lt5v00v/hlds.tar.gz?rlkey=jbvxybo63cu4fg2fipwuxhywx&st=20xpq6at&dl=1"
 if [ ! -e "_hlds.tar.gz" ]; then
 	echo "Klaida: Nepavyko gauti failu is serverio. Nutraukiama..."
 	exit 1

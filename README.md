@@ -1,5 +1,11 @@
-# rehlds-installer (v5.7)
+# rehlds-installer (v5.7.2)
 ReHLDS installation script (Extended support)
+
+# Dėmesio!
+Kadangi buvo problemų iš valve, ir jei naudojot ankstesnę nei 2023-10-13 versiją,
+prašome prieš naudojat pasileisti šią komandą ir nutraukti jau esamus hlds_run procesus.
+``pkill -kill hlds_run
+``
 
 __ReHLDS__ -> [![rehlds](https://img.shields.io/github/release/dreamstalker/rehlds.svg)](https://github.com/dreamstalker/rehlds/releases)  
 __AmxModX__ -> [![amxmodx](https://img.shields.io/badge/release-v1.10%20(latest)-blue)](https://www.amxmodx.org/downloads-new.php?branch=master&all=1)  

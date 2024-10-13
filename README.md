@@ -7,6 +7,8 @@ nei 2023-10-13 versiją, prašome prieš naudojat pasileisti šią komandą ir n
 Komanda: ``pkill -kill hlds_run
 ``
 
+--------------------------------------
+
 __ReHLDS__ -> [![rehlds](https://img.shields.io/github/release/dreamstalker/rehlds.svg)](https://github.com/dreamstalker/rehlds/releases)  
 __AmxModX__ -> [![amxmodx](https://img.shields.io/badge/release-v1.10%20(latest)-blue)](https://www.amxmodx.org/downloads-new.php?branch=master&all=1)  
 __Metamod-r__ -> [![metamodr](https://img.shields.io/github/release/theAsmodai/metamod-r.svg)](https://github.com/theAsmodai/metamod-r/releases)  

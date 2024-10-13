@@ -3,7 +3,7 @@ ReHLDS installation script (Extended support)
 
 # Dėmesio!
 Kadangi buvo problemų iš valve, ir jei naudojot ankstesnę nei 2023-10-13 versiją,
-prašome prieš naudojat pasileisti šią komandą ir nutraukti jau esamus hlds_run procesus.
+prašome prieš naudojat pasileisti šią komandą ir nutraukti jau esamus hlds_run procesus. 
 ``pkill -kill hlds_run
 ``
 

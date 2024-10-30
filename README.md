@@ -30,7 +30,7 @@ Gero naudojimo :)
 
 ------------------------------------
 ## Rekomenduojama OS:
-__Debian 10__ ar naujesnė versija
+* __Debian 10__ ar naujesnė versija
 
 ------------------------------------
 

@@ -9,12 +9,6 @@ __Metamod-r__ -> [![metamodr](https://img.shields.io/github/release/theAsmodai/m
 __ReGameDLL__ -> [![regamedll](https://img.shields.io/github/release/s1lentq/ReGameDLL_CS.svg)](https://github.com/s1lentq/ReGameDLL_CS/releases)  
 __Reunion__ -> [![reunion](https://img.shields.io/github/release/s1lentq/reunion.svg)](https://github.com/s1lentq/reunion/releases)  
 
-------------------------------------
-## Rekomenduojama OS:
-__Debian 10__ ar naujesnė versija
-
-------------------------------------
-
 # Instaliacija
 
 ``cd /root/
@@ -33,6 +27,12 @@ chmod +x rehlds.sh
 ``
 
 Gero naudojimo :)
+
+------------------------------------
+## Rekomenduojama OS:
+__Debian 10__ ar naujesnė versija
+
+------------------------------------
 
 ## Naudingos komandos
 __amxx modules__ - visi šiuo metu įdiegti moduliai, statusas ir jų versijos.  

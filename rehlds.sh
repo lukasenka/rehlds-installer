@@ -5,7 +5,7 @@
 # amxmodx.lt (nebeaktyvus)
 # saimon.lt
 
-VERSION=5.7.2
+VERSION=5.8
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -13,13 +13,13 @@ MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
 SERVER_DIR="rehlds"
 INSTALL_DIR="$MAIN_DIR/$SERVER_DIR"
 
-if [[ $(cat /etc/os-release | grep "VERSION_ID" | cut -d'"' -f2) == "10" ]] && [[ $(awk -F= '$1 == "ID" {gsub(/"/, "", $2); print $2}' /etc/os-release) == "debian" ]]; then
-    bits_lib_32="lib32gcc1"
-elif [[ $(cat /etc/os-release | grep "VERSION_ID" | cut -d'"' -f2) == "11" ]] && [[ $(awk -F= '$1 == "ID" {gsub(/"/, "", $2); print $2}' /etc/os-release) == "debian" ]]; then
+VERSION_ID=$(awk -F= '$1 == "VERSION_ID" {gsub(/"/, "", $2); print $2}' /etc/os-release)
+ID=$(awk -F= '$1 == "ID" {gsub(/"/, "", $2); print $2}' /etc/os-release)
+
+if [[ "$ID" == "debian" ]] && [[ "$VERSION_ID" -ge 11 ]]; then
     bits_lib_32="lib32gcc-s1"
 else
-    bits_lib_32="lib32gcc1"	
-    echo "[WARNING] Your OS is not supported, but it should work. We recommend Debian 10 or 11 only."
+    bits_lib_32="lib32gcc1"
 fi
 
 rehlds_url=$(wget -qO - https://img.shields.io/github/v/release/dreamstalker/rehlds.svg | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')

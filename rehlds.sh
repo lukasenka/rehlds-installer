@@ -5,7 +5,9 @@
 # amxmodx.lt (nebeaktyvus)
 # saimon.lt
 
-VERSION=5.8
+# 5.8.1 - fix for curl package missing.
+
+VERSION=5.8.1
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -81,8 +83,9 @@ check_packages() {
 	LIB_CHECK=false && [ "`(dpkg --get-selections $bits_lib_32 | egrep -o \"(de)?install\") 2> /dev/null`" = "install" ] && LIB_CHECK=true
 	SCREEN_CHECK=false && [ "`(dpkg --get-selections screen | egrep -o \"(de)?install\") 2> /dev/null`" = "install" ] && SCREEN_CHECK=true
  	UNZIP_CHECK=false && [ "`(dpkg --get-selections unzip | egrep -o \"(de)?install\") 2> /dev/null`" = "install" ] && UNZIP_CHECK=true
+  	CURL_CHECK=false && [ "`(dpkg --get-selections curl | egrep -o \"(de)?install\") 2> /dev/null`" = "install" ] && CURL_CHECK=true
 	
-        if ($BIT64_CHECK && ! $LIB_CHECK) || ! $SCREEN_CHECK || ! $UNZIP_CHECK; then
+        if ($BIT64_CHECK && ! $LIB_CHECK) || ! $SCREEN_CHECK || ! $UNZIP_CHECK || ! $CURL_CHECK; then
 		echo "-------------------------------------------------------------------------------"
 		echo "Serveryje truksta instaliacijai reikiamu paketu"
 				if [[ $(id -u) -ne 0 ]] ; then
@@ -105,6 +108,11 @@ check_packages() {
   		if ! $UNZIP_CHECK; then
 		echo "apt-get -y install unzip"
 		fi
+
+    		if ! $CURL_CHECK; then
+		echo "apt-get -y install curl"
+		fi
+  
 		echo -e "\nInstaliuoti?"
 		echo "1. Taip"
 		echo "2. Iseiti"
@@ -124,6 +132,10 @@ check_packages() {
 
    			if ! $UNZIP_CHECK; then
 				apt-get -y install unzip
+			fi
+
+      			if ! $CURL_CHECK; then
+				apt-get -y install curl
 			fi
 			;;
 		*)

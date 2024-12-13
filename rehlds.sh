@@ -6,8 +6,9 @@
 # saimon.lt
 
 # 5.8.1 - fix for curl package missing.
+# 6.0 - port choosing enabled.
 
-VERSION=5.8.1
+VERSION=6.0
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -983,7 +984,20 @@ fi
 
 if [ "$UPDATE" -ne 1 ]; then
 
-echo "cd $INSTALL_DIR && screen -A -m -d -S $SERVER_DIR ./hlds_run -game cstrike +ip $(wget -T 5 -qO - "$ip_url") +port 27015 +map cs_assault +maxplayers 32" >> start_line
+echo "-----------------------------"
+
+echo "Instaliacija baigta." 
+echo "Iveskite, koki porta norite naudoti:"
+echo "-----------------------------"
+echo "Spauskite 'enter', kad naudotumete standartini: 27015"
+read -p "Portas: " port
+
+if [ -z "$port" ]; then
+    port="27015"
+fi
+
+echo "Naudojamas portas: $port"
+echo "cd $INSTALL_DIR && screen -A -m -d -S $SERVER_DIR ./hlds_run -game cstrike +ip $(wget -T 5 -qO - "$ip_url") +port $port +map cs_assault +maxplayers 32" >> start_line
 
 echo "#!/bin/bash" >> start
 echo "SESSION=\$(screen -ls | egrep -o -e [0-9]+\\.$SERVER_DIR | sed -r -e \"s/[0-9]+\\.//\")" >> start

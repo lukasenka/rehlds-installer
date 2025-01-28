@@ -7,8 +7,10 @@
 
 # 5.8.1 - fix for curl package missing.
 # 6.0 - port choosing enabled.
+# 6.1 - Refactored server files downloader. If the internet speed is >= 20 Mbps,
+# everything will be downloaded via SteamCMD; otherwise, from the server.
 
-VERSION=6.0
+VERSION=6.1
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -517,33 +519,68 @@ echo "--------------------------------------------------------------------------
 
 if [ "$UPDATE" -eq 0 ] || [ "$UPDATE_RDLL" -eq 0 ]; then
 
-echo "Siunciami hlds failai ..."
-sleep 2
+
 cd $INSTALL_DIR
-wget -O _hlds.tar.gz "https://www.dropbox.com/scl/fi/qddwy787rbc751lt5v00v/hlds.tar.gz?rlkey=jbvxybo63cu4fg2fipwuxhywx&st=20xpq6at&dl=1"
-if [ ! -e "_hlds.tar.gz" ]; then
+
+check_speed() {
+    echo "[ReHLDS] Tikrinamas interneto greitis (atsiunciant testini faila)..."
+    # Matuojamas greitis
+    speed=$(wget -O /dev/null http://speedtest.tele2.net/10MB.zip 2>&1 | grep -o '[0-9.]* [KM]B/s' | tail -1)
+    echo "[ReHLDS] Jusu greitis: $speed"
+
+    if [[ $speed == *"MB/s"* ]]; then
+        download_speed=$(echo $speed | awk '{print $1 * 8}')
+    else
+        download_speed=$(echo $speed | awk '{print $1 / 1000 * 8}')
+    fi
+    echo $download_speed
+}
+
+download_files() {
+    cd $INSTALL_DIR
+    wget -O _hlds.tar.gz "https://www.dropbox.com/scl/fi/qddwy787rbc751lt5v00v/hlds.tar.gz?rlkey=jbvxybo63cu4fg2fipwuxhywx&st=20xpq6at&dl=1"
+    if [ ! -e "_hlds.tar.gz" ]; then
 	echo "Klaida: Nepavyko gauti failu is serverio. Nutraukiama..."
+    	exit 1
+    fi
+    tar zxvf _hlds.tar.gz
+    rm _hlds.tar.gz
+    chmod +x hlds_run hlds_linux
+}
+
+speed=$(check_speed)
+
+# Jei greitis mazesnis nei 10mb/s
+if (( $(echo "$speed < 10" | bc -l) )); then
+    download_files
+else
+    echo "[ReHLDS] Interneto greitis pakankamas ($speed Mbps). Siunciama is SteamCMD serverines."
+
+    mkdir $INSTALL_DIR/steamcmd
+
+    cd $INSTALL_DIR/steamcmd
+
+    curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
+
+    if [ ! -e "steamcmd.sh" ]; then
+    	echo "[SteamCMD] Klaida: Nepavyko gauti SteamCMD failu is serverio. Nutraukiama..."
 	exit 1
-fi
-tar zxvf _hlds.tar.gz
-rm _hlds.tar.gz
-chmod +x hlds_run hlds_linux
+    fi
 
-cd $INSTALL_DIR
 
-if [ ! -e "$INSTALL_DIR/steamcmd/steamcmd.sh" ]; then
-	mkdir steamcmd
-    
-	cd $INSTALL_DIR/steamcmd
-	curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
+    ./steamcmd.sh +force_install_dir $INSTALL_DIR +login anonymous +app_update 90 -beta steam_legacy validate +quit
 
-	if [ ! -e "steamcmd.sh" ]; then
-		echo "[SteamCMD] Klaida: Nepavyko gauti SteamCMD failu is serverio. Nutraukiama..."
-		exit 1
+     EXITVAL=$?
+	if [ $EXITVAL -gt 0 ]; then
+		echo "-------------------------------------------------------------------------------"
+		echo "SteamCMD vidine klaida. Klaidos kodas: $EXITVAL"
+		echo "Instaliacija nutraukiama..."
+        	exit 1
 	fi
-fi
 
-check_app90_version
+     cd $INSTALL_DIR
+
+fi
 
 fi
 

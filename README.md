@@ -1,4 +1,4 @@
-# rehlds-installer (v6.1)
+# rehlds-installer (v6.2)
 ReHLDS installation script (Extended support)
 
 ---------------------------------------
@@ -7,7 +7,7 @@ __ReHLDS__ -> [![rehlds](https://img.shields.io/github/release/dreamstalker/rehl
 __AmxModX__ -> [![amxmodx](https://img.shields.io/badge/release-v1.10%20(latest)-blue)](https://www.amxmodx.org/downloads-new.php?branch=master&all=1)  
 __Metamod-r__ -> [![metamodr](https://img.shields.io/github/release/theAsmodai/metamod-r.svg)](https://github.com/theAsmodai/metamod-r/releases)  
 __ReGameDLL__ -> [![regamedll](https://img.shields.io/github/release/s1lentq/ReGameDLL_CS.svg)](https://github.com/s1lentq/ReGameDLL_CS/releases)  
-__Reunion__ -> [![reunion](https://img.shields.io/github/release/s1lentq/reunion.svg)](https://github.com/s1lentq/reunion/releases)  
+__Reunion__ -> [![reunion](https://img.shields.io/github/release/s1lentq/reunion.svg?include_prereleases)](https://github.com/s1lentq/reunion/releases)  
 
 # Instaliacija
 

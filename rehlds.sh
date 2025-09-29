@@ -9,8 +9,9 @@
 # 6.0 - port choosing enabled.
 # 6.1 - Refactored server files downloader. If the internet speed is >= 20 Mbps,
 # everything will be downloaded via SteamCMD; otherwise, from the server.
+# 6.2 - reunion with pre-release versions included.
 
-VERSION=6.1
+VERSION=6.2
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -32,7 +33,7 @@ regamedll_url=$(wget -qO - https://img.shields.io/github/release/s1lentq/ReGameD
 metamodr_url=$(wget -qO - https://img.shields.io/github/release/theAsmodai/metamod-r.svg | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')
 
 #reunion version
-reunion_version=$(wget -qO - https://img.shields.io/github/v/release/s1lentq/reunion.svg | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')
+reunion_version=$(wget -qO - https://img.shields.io/github/v/release/s1lentq/reunion.svg?include_prereleases | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')
 
 #amxx build number
 amxx_build_url='https://www.amxmodx.org/downloads-new.php?branch=master&all=1'
@@ -736,8 +737,15 @@ else
     echo "Reunion v. $reunion_version. Sukonfiguruota sekmingai."
     
     mv reunion.cfg $INSTALL_DIR/cstrike
-    cd bin/Linux
-    mv reunion_mm_i386.so $INSTALL_DIR/cstrike/addons/reunion
+
+    if [ -d "bin" ]; then
+    	cd bin/Linux
+    	mv reunion_mm_i386.so $INSTALL_DIR/cstrike/addons/reunion
+    else
+        cd addons/reunion
+        mv reunion_mm_i386.so $INSTALL_DIR/cstrike/addons/reunion
+    fi
+    
 fi
 
 cd $INSTALL_DIR

@@ -43,3 +43,7 @@ __game version__ - jūsų serverio ReGameDLL versija. Jeigu komanda nesuveikia -
 Plačiau:
 * https://wiki.alliedmods.net/Commands_(amx_mod_x)#RCON_Commands
 * http://metamod.org/metamod.html#commands
+
+### 🔍 Keywords (SEO)
+
+cs 1.6 server installer, cs 1.6 rehlds installer, cs 1.6 serverio instaliacija, counter strike 1.6 server tutorial, rehlds installer, amxx installer, metamod installer, linux cs 1.6 server, cs16 game server setup, counter-strike 1.6 dedicated server, cs 1.6 steam nonsteam server, rehlds regamedll reunion amxx, how to install cs 1.6 server rehlds

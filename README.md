@@ -9,7 +9,7 @@ __Metamod-r__ -> [![metamodr](https://img.shields.io/github/release/theAsmodai/m
 __ReGameDLL__ -> [![regamedll](https://img.shields.io/github/release/s1lentq/ReGameDLL_CS.svg)](https://github.com/s1lentq/ReGameDLL_CS/releases)  
 __Reunion__ -> [![reunion](https://img.shields.io/github/release/s1lentq/reunion.svg?include_prereleases)](https://github.com/s1lentq/reunion/releases)  
 
-# Instaliacija
+# Installation
 
 ``cd /root/
 ``
@@ -26,21 +26,21 @@ chmod +x rehlds.sh
 ./rehlds.sh
 ``
 
-Gero naudojimo :)
+Hope you find it useful! :)
 
 ------------------------------------
-## Rekomenduojama OS:
-* __Debian 10__ ar naujesnė versija
+## Recommended os
+* __Debian 10__ or latest version
 
 ------------------------------------
 
-## Naudingos komandos
-__amxx modules__ - visi šiuo metu įdiegti moduliai, statusas ir jų versijos.  
-__amxx version__ - jūsų serverio amxx versija.  
-__meta version__ - jūsų serverio metamod serverio versija.  
-__game version__ - jūsų serverio ReGameDLL versija. Jeigu komanda nesuveikia - įdiegto addon'o nėra. 
+## Useful commands
+__amxx modules__ - all currently installed modules, their status and versions.
+__amxx version__ - your server amxx version.
+__meta version__ - your server's metamod version.
+__game version__ - your server's ReGameDLL version. If the command doesn't work - the addon is not installed.
 
-Plačiau:
+Read more:
 * https://wiki.alliedmods.net/Commands_(amx_mod_x)#RCON_Commands
 * http://metamod.org/metamod.html#commands
 

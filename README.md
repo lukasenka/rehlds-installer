@@ -35,12 +35,9 @@ Hope you find it useful! :)
 ------------------------------------
 
 ## Useful commands
-__amxx modules__ - all currently installed modules, their status and versions.
-
-__amxx version__ - your server amxx version.
-
-__meta version__ - your server's metamod version.
-
+__amxx modules__ - all currently installed modules, their status and versions. 
+__amxx version__ - your server amxx version. 
+__meta version__ - your server's metamod version. 
 __game version__ - your server's ReGameDLL version. If the command doesn't work - the addon is not installed.
 
 Read more:

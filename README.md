@@ -34,7 +34,7 @@ Hope you find it useful! :)
 * __Ubuntu__
 * __Debian 10__
 * __Linux Mint__
-* __Pop!_OS__
+* _Pop!_OS__
 * __Kali Linux__
 
 ------------------------------------

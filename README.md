@@ -32,7 +32,7 @@ Hope you find it useful! :)
 ## Recommended os
 ## APT (Debian based)
 * __Ubuntu__
-* __Debian 10__
+* __Debian__
 * __Linux Mint__
 * _Pop!_OS__
 * __Kali Linux__

@@ -10,8 +10,9 @@
 # 6.1 - Refactored server files downloader. If the internet speed is >= 20 Mbps,
 # everything will be downloaded via SteamCMD; otherwise, from the server.
 # 6.2 - reunion with pre-release versions included.
+# 6.3 - more compatible code with other distros than debian >= 10
 
-VERSION=6.2
+VERSION=6.3
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -19,13 +20,14 @@ MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
 SERVER_DIR="rehlds"
 INSTALL_DIR="$MAIN_DIR/$SERVER_DIR"
 
-VERSION_ID=$(awk -F= '$1 == "VERSION_ID" {gsub(/"/, "", $2); print $2}' /etc/os-release)
-ID=$(awk -F= '$1 == "ID" {gsub(/"/, "", $2); print $2}' /etc/os-release)
-
-if [[ "$ID" == "debian" ]] && [[ "$VERSION_ID" -ge 11 ]]; then
-    bits_lib_32="lib32gcc-s1"
+if apt-cache show lib32gcc-s1 >/dev/null 2>&1; then
+    apt-get install -y lib32gcc-s1
+elif apt-cache show lib32gcc1 >/dev/null 2>&1; then
+    apt-get install -y lib32gcc1
 else
-    bits_lib_32="lib32gcc1"
+    echo "[KLAIDA] Nerastas nei lib32gcc-s1, nei lib32gcc1."
+	echo "[KLAIDA] Rekomenduojamos OS: Ubuntu, Debian, Linux Mint, Pop!_OS, Khali linux (debian pagrindu)."
+    exit 1
 fi
 
 rehlds_url=$(wget -qO - https://img.shields.io/github/v/release/dreamstalker/rehlds.svg | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')

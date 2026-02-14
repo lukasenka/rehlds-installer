@@ -30,7 +30,12 @@ Hope you find it useful! :)
 
 ------------------------------------
 ## Recommended os
-* __Debian 10__ or latest version
+## APT (Debian based)
+* __Ubuntu__
+* __Debian 10__
+* __Linux Mint__
+* __Pop!_OS__
+* __Kali Linux__
 
 ------------------------------------
 

@@ -10,9 +10,9 @@
 # 6.1 - Refactored server files downloader. If the internet speed is >= 20 Mbps,
 # everything will be downloaded via SteamCMD; otherwise, from the server.
 # 6.2 - reunion with pre-release versions included.
-# 6.3 - more compatible code with other distros than debian >= 10
+# 6.3 - 6.3.2 - more compatible code with other distros than debian >= 10
 
-VERSION=6.3
+VERSION=6.3.2
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -21,9 +21,11 @@ SERVER_DIR="rehlds"
 INSTALL_DIR="$MAIN_DIR/$SERVER_DIR"
 
 if apt-cache show lib32gcc-s1 >/dev/null 2>&1; then
-    apt-get install -y lib32gcc-s1
+    bits_lib_32="lib32gcc-s1"
+    apt-get install -y "$bits_lib_32"
 elif apt-cache show lib32gcc1 >/dev/null 2>&1; then
-    apt-get install -y lib32gcc1
+    bits_lib_32="lib32gcc1"
+    apt-get install -y "$bits_lib_32"
 else
     echo "[KLAIDA] Nerastas nei lib32gcc-s1, nei lib32gcc1."
 	echo "[KLAIDA] Rekomenduojamos OS: Ubuntu, Debian, Linux Mint, Pop!_OS, Khali linux (debian pagrindu)."

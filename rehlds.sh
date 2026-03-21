@@ -11,8 +11,9 @@
 # everything will be downloaded via SteamCMD; otherwise, from the server.
 # 6.2 - reunion with pre-release versions included.
 # 6.3 - 6.3.2 - more compatible code with other distros than debian >= 10
+# 6.4 - information for new updates now is more flexible.
 
-VERSION=6.3.2
+VERSION=6.4
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -176,25 +177,17 @@ check_dir() {
 				screen -S $SERVER_DIR -p 0 -X stuff "meta list$(printf '\r')"
 				screen -S $SERVER_DIR -X hardcopy $INSTALL_DIR/output2.txt
 
-				amxx_version=$(grep "AMX Mod X" $INSTALL_DIR/output.txt | awk '{print $4}')
-				if [ -z "$amxx_version" ]; then
-    					amxx_version="null"
-				fi
+				amxx_version=$(grep -oP 'AMX Mod X\s+\K[0-9.]+' "$INSTALL_DIR/output.txt" | head -n1)
+				[ -z "$amxx_version" ] && amxx_version="null"
+			
+				meta_version=$(grep "Metamod-r" "$INSTALL_DIR/output.txt" | grep -o 'v[0-9.]\+' | head -n1)
+				[ -z "$meta_version" ] && meta_version="null"
 
-				meta_version=$(grep "Metamod-r v" $INSTALL_DIR/output.txt | awk '{print $2 " " $3}')
-				if [ -z "$meta_version" ]; then
-    					meta_version="null"
-				fi
+				rehlds_version=$(grep "ReHLDS version" "$INSTALL_DIR/output.txt" | grep -o '[0-9]\+\(\.[0-9]\+\)\+' | head -n1)
+				[ -z "$rehlds_version" ] && rehlds_version="null"
 
-				rehlds_version=$(grep "ReHLDS version" $INSTALL_DIR/output.txt | awk '{print $3}')
-				if [ -z "$rehlds_version" ]; then
-    					rehlds_version="null"
-				fi
-
-				my_reunion_version=$(awk '$3 == "Reunion" {print $7}' "$INSTALL_DIR/output2.txt")
-				if [ -z "$my_reunion_version" ]; then
-    					my_reunion_version="null"
-				fi
+				my_reunion_version=$(grep "Reunion" "$INSTALL_DIR/output2.txt" | grep -o 'v[0-9.]\+' | head -n1)
+				[ -z "$my_reunion_version" ] && my_reunion_version="null"
 			else
 				amxx_version="OFFLINE"
 				meta_version="OFFLINE"
@@ -204,8 +197,12 @@ check_dir() {
 			fi
 
       		fi
-      
-		echo "Instaliuoti i '$INSTALL_DIR'?"
+
+		if [ "$UPDATE" == 1 ]; then
+			echo "Atnaujinti i '$INSTALL_DIR'?"
+                else
+                        echo "Instaliuoti i '$INSTALL_DIR'?"
+                fi
 		echo "1. Taip"
 		echo "2. Noriu nurodyti kita direktorija"
 		read -p "Iveskite pasirinkta punkta: " MENU_NUMBER
@@ -226,7 +223,12 @@ check_dir() {
 			;;
 		esac
 	else
-		echo "Instaliuoti serveri i '$INSTALL_DIR'?"
+		if [ "$UPDATE" == 1 ]; then
+			echo "Atnaujinti i '$INSTALL_DIR'?"
+                else
+                        echo "Instaliuoti i '$INSTALL_DIR'?"
+                fi
+
 		echo "1. Taip"
 		echo "2. Noriu nurodyti kita direktorija"
 		echo "3. Iseiti"
@@ -447,13 +449,21 @@ echo "2. [rehlds][metamod-r][reunion][amxmodx] + ReGameDLL | (steam / non-steam)
 echo "-------------------------------------------------------------------------------"
 else
 echo "-------------------------------------------------------------------------------"
-echo "            [rehlds]                              [metamod-r]                  "
+echo "            [rehlds]                                                           "
 echo "-------------------------------------------------------------------------------"
-echo "$rehlds_version -> $rehlds_url-dev |  $meta_version -> v$metamodr_url, API"
+echo "Tavo serverio: $rehlds_version | Naujausias: $rehlds_url"
 echo "-------------------------------------------------------------------------------"
-echo "            [reunion]         [amxmodx]            	     "
+echo "            [metamod-r]                                                        "
 echo "-------------------------------------------------------------------------------"
-echo "$my_reunion_version -> v$reunion_version | $amxx_version -> 1.10.0.$amxx_build_version"
+echo "Tavo serverio: $meta_version | Naujausias: $metamodr_url"
+echo "-------------------------------------------------------------------------------"
+echo "            [reunion]                    	                                     "
+echo "-------------------------------------------------------------------------------"
+echo "Tavo serverio: $my_reunion_version | Naujausias: $reunion_version" 
+echo "-------------------------------------------------------------------------------"
+echo "            [amxmodx]                                                          "
+echo "-------------------------------------------------------------------------------"
+echo "Tavo serverio: $amxx_version |  Naujausias: 1.10.0.$amxx_build_version"
 echo "-------------------------------------------------------------------------------"
 echo "--- Pasirinkite modifikacijas, kurios bus atnaujintos: ------------------------"
 echo "([modifikacija] | (serverio tipas)):"

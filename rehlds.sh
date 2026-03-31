@@ -12,8 +12,9 @@
 # 6.2 - reunion with pre-release versions included.
 # 6.3 - 6.3.2 - more compatible code with other distros than debian >= 10
 # 6.4 - information for new updates now is more flexible.
+# 6.5 - patch for internet speed tester. Code more flexible.
 
-VERSION=6.4
+VERSION=6.5
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -23,10 +24,8 @@ INSTALL_DIR="$MAIN_DIR/$SERVER_DIR"
 
 if apt-cache show lib32gcc-s1 >/dev/null 2>&1; then
     bits_lib_32="lib32gcc-s1"
-    apt-get install -y "$bits_lib_32"
 elif apt-cache show lib32gcc1 >/dev/null 2>&1; then
     bits_lib_32="lib32gcc1"
-    apt-get install -y "$bits_lib_32"
 else
     echo "[KLAIDA] Nerastas nei lib32gcc-s1, nei lib32gcc1."
 	echo "[KLAIDA] Rekomenduojamos OS: Ubuntu, Debian, Linux Mint, Pop!_OS, Khali linux (debian pagrindu)."
@@ -538,17 +537,30 @@ if [ "$UPDATE" -eq 0 ] || [ "$UPDATE_RDLL" -eq 0 ]; then
 cd $INSTALL_DIR
 
 check_speed() {
-    echo "[ReHLDS] Tikrinamas interneto greitis (atsiunciant testini faila)..."
-    # Matuojamas greitis
-    speed=$(wget -O /dev/null http://speedtest.tele2.net/10MB.zip 2>&1 | grep -o '[0-9.]* [KM]B/s' | tail -1)
-    echo "[ReHLDS] Jusu greitis: $speed"
+    echo "[ReHLDS] Tikrinamas interneto greitis..." >&2
 
-    if [[ $speed == *"MB/s"* ]]; then
-        download_speed=$(echo $speed | awk '{print $1 * 8}')
-    else
-        download_speed=$(echo $speed | awk '{print $1 / 1000 * 8}')
+   raw_speed=$(timeout 15 wget -O /dev/null -o - http://speedtest.tele2.net/10MB.zip 2>&1 \
+        | tr -d '\r' \
+        | awk -F'[()]' '/[0-9.]+ [KM]B\/s/ {print $2}' \
+        | tail -n 1)
+
+    if [ -z "$raw_speed" ]; then
+       echo "[ReHLDS] [WARNING] Nepavyko nustatyti greicio." >&2
+       echo "0"
+       return
     fi
-    echo $download_speed
+    echo "[ReHLDS] Jusu greitis: $raw_speed" >&2
+
+    value=$(echo "$raw_speed" | awk '{print $1}')
+    unit=$(echo "$raw_speed" | awk '{print $2}')
+
+    if [ "$unit" = "MB/s" ]; then
+        download_speed=$(awk "BEGIN {print $value * 8}")
+    else
+        download_speed=$(awk "BEGIN {print $value * 8 / 1000}")
+    fi
+
+    echo "$download_speed"
 }
 
 download_files() {
@@ -565,16 +577,16 @@ download_files() {
 
 speed=$(check_speed)
 
-# Jei greitis mazesnis nei 10mb/s
-if (( $(echo "$speed < 10" | bc -l) )); then
+if awk "BEGIN {exit !($speed < 10)}"; then
+    echo "[ReHLDS] Interneto greitis per mazas (${speed} Mbps). Siunciama is Dropbox."
     download_files
 else
-    echo "[ReHLDS] Interneto greitis pakankamas ($speed Mbps). Siunciama is SteamCMD serverines."
+    echo "[ReHLDS] Interneto greitis pakankamas (${speed} Mbps). Siunciama is SteamCMD serverines."
 
     mkdir $INSTALL_DIR/steamcmd
 
     cd $INSTALL_DIR/steamcmd
-
+  
     curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
 
     if [ ! -e "steamcmd.sh" ]; then
@@ -596,7 +608,7 @@ else
      cd $INSTALL_DIR
 
 fi
-
+ 
 fi
 
 if [ ! -d "$INSTALL_DIR/cstrike" ] || [ ! -f "$INSTALL_DIR/hlds_run" ] || 

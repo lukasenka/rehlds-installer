@@ -1,4 +1,4 @@
-# rehlds-installer (v6.4)
+# rehlds-installer (v6.5)
 ReHLDS installation script (Extended support)
 
 ---------------------------------------

@@ -13,8 +13,9 @@
 # 6.3 - 6.3.2 - more compatible code with other distros than debian >= 10
 # 6.4 - information for new updates now is more flexible.
 # 6.5 - patch for internet speed tester. Code more flexible.
+# 6.5.1 = bug fixes.
 
-VERSION=6.5
+VERSION=6.5.1
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -512,9 +513,6 @@ case "$NUMBER" in
         exit 0
         fi
         ;;
-
-  "9")
-	;;
 *)
 	echo "Ate"
 	exit 0

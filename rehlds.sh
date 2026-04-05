@@ -13,9 +13,9 @@
 # 6.3 - 6.3.2 - more compatible code with other distros than debian >= 10
 # 6.4 - information for new updates now is more flexible.
 # 6.5 - patch for internet speed tester. Code more flexible.
-# 6.5.1 = bug fixes.
+# 6.5.1 - 6.5.2 - bug fixes.
 
-VERSION=6.5.1
+VERSION=6.5.2
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -518,7 +518,7 @@ case "$NUMBER" in
 	exit 0
 	;;
 esac
-#------------
+
 if [ ! -d "$INSTALL_DIR" ]; then
 mkdir $INSTALL_DIR
 fi
@@ -697,7 +697,6 @@ wget https://github.com/theAsmodai/metamod-r/releases/download/${metamodr_url}/m
 unzip metamod-bin-${metamodr_url}.zip
 cd $INSTALL_DIR/meta/addons/metamod
 mv metamod_i386.so $INSTALL_DIR/cstrike/addons/metamod/dlls/metamod_i386s.so
-mv config.ini $INSTALL_DIR/cstrike/addons/metamod/dlls/config.ini
 cd $INSTALL_DIR/cstrike/addons/metamod/dlls
 if [ "$UPDATE" -ne 0 ]; then
 rm metamod_i386.so

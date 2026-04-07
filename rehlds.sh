@@ -537,10 +537,10 @@ cd $INSTALL_DIR
 check_speed() {
     echo "[ReHLDS] Tikrinamas interneto greitis..." >&2
 
-   raw_speed=$(timeout 15 wget -O /dev/null -o - http://speedtest.tele2.net/10MB.zip 2>&1 \
-        | tr -d '\r' \
-        | awk -F'[()]' '/[0-9.]+ [KM]B\/s/ {print $2}' \
-        | tail -n 1)
+raw_speed=$(timeout 15 wget -O /dev/null -o - http://speedtest.tele2.net/10MB.zip 2>&1 \
+    | tr -d '\r' \
+    | awk -F'[()]' '/[0-9.]+ [KM]B\/s/ {print $2}' \
+    | tail -n 1)
 
     if [ -z "$raw_speed" ]; then
        echo "[ReHLDS] [WARNING] Nepavyko nustatyti greicio." >&2

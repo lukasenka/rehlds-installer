@@ -13,9 +13,9 @@
 # 6.3 - 6.3.2 - more compatible code with other distros than debian >= 10
 # 6.4 - information for new updates now is more flexible.
 # 6.5 - patch for internet speed tester. Code more flexible.
-# 6.5.1 - 6.5.2 - bug fixes.
+# 6.5.1 - 6.5.3 - bug fixes.
 
-VERSION=6.5.2
+VERSION=6.5.3
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -537,25 +537,26 @@ cd $INSTALL_DIR
 check_speed() {
     echo "[ReHLDS] Tikrinamas interneto greitis..." >&2
 
-raw_speed=$(timeout 15 wget -O /dev/null -o - http://speedtest.tele2.net/10MB.zip 2>&1 \
-    | tr -d '\r' \
-    | awk -F'[()]' '/[0-9.]+ [KM]B\/s/ {print $2}' \
-    | tail -n 1)
+    raw_speed=$(timeout 15 wget -O /dev/null -o - http://speedtest.tele2.net/10MB.zip 2>&1 \
+        | tr -d '\r' \
+        | awk 'match($0, /\(([0-9.]+ [KM]B\/s)\)/, a) { print a[1] }' \
+        | tail -n 1)
 
     if [ -z "$raw_speed" ]; then
-       echo "[ReHLDS] [WARNING] Nepavyko nustatyti greicio." >&2
-       echo "0"
-       return
+        echo "[ReHLDS] [WARNING] Nepavyko nustatyti greicio." >&2
+        echo "0"
+        return
     fi
+
     echo "[ReHLDS] Jusu greitis: $raw_speed" >&2
 
     value=$(echo "$raw_speed" | awk '{print $1}')
     unit=$(echo "$raw_speed" | awk '{print $2}')
 
     if [ "$unit" = "MB/s" ]; then
-        download_speed=$(awk "BEGIN {print $value * 8}")
+        download_speed=$(awk "BEGIN { print $value * 8 }")
     else
-        download_speed=$(awk "BEGIN {print $value * 8 / 1000}")
+        download_speed=$(awk "BEGIN { print $value * 8 / 1000 }")
     fi
 
     echo "$download_speed"

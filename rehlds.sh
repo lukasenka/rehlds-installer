@@ -13,9 +13,9 @@
 # 6.3 - 6.3.2 - more compatible code with other distros than debian >= 10
 # 6.4 - information for new updates now is more flexible.
 # 6.5 - patch for internet speed tester. Code more flexible.
-# 6.5.1 - 6.5.3 - bug fixes.
+# 6.5.1 - 6.5.4 - bug fixes.
 
-VERSION=6.5.3
+VERSION=6.5.4
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -172,9 +172,17 @@ check_dir() {
 				screen -S $SERVER_DIR -p 0 -X stuff "meta version$(printf '\r')"
 				screen -S $SERVER_DIR -p 0 -X stuff "version$(printf '\r')"
 				screen -S $SERVER_DIR -p 0 -X stuff "game version$(printf '\r')"
+
+                                echo "[REHLDS.sh] Prasome palaukti kelias akimirkas...";
+                                echo "-------------------------------------------------------------------------------"
+                                sleep 2
+
 				screen -S $SERVER_DIR -X hardcopy $INSTALL_DIR/output.txt
 
 				screen -S $SERVER_DIR -p 0 -X stuff "meta list$(printf '\r')"
+
+                                sleep 2
+
 				screen -S $SERVER_DIR -X hardcopy $INSTALL_DIR/output2.txt
 
 				amxx_version=$(grep -oP 'AMX Mod X\s+\K[0-9.]+' "$INSTALL_DIR/output.txt" | head -n1)

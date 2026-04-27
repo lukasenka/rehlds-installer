@@ -14,8 +14,9 @@
 # 6.4 - information for new updates now is more flexible.
 # 6.5 - patch for internet speed tester. Code more flexible.
 # 6.5.1 - 6.5.4 - bug fixes.
+# 6.6 - new links from github patched.
 
-VERSION=6.5.4
+VERSION=6.6
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -33,12 +34,12 @@ else
     exit 1
 fi
 
-rehlds_url=$(wget -qO - https://img.shields.io/github/v/release/dreamstalker/rehlds.svg | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')
-regamedll_url=$(wget -qO - https://img.shields.io/github/release/s1lentq/ReGameDLL_CS.svg | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')
-metamodr_url=$(wget -qO - https://img.shields.io/github/release/theAsmodai/metamod-r.svg | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')
+rehlds_url=$(wget -qO - https://img.shields.io/github/v/release/rehlds/rehlds.svg | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')
+regamedll_url=$(wget -qO - https://img.shields.io/github/release/rehlds/ReGameDLL_CS.svg | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')
+metamodr_url=$(wget -qO - https://img.shields.io/github/release/rehlds/metamod-r.svg | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')
 
 #reunion version
-reunion_version=$(wget -qO - https://img.shields.io/github/v/release/s1lentq/reunion.svg?include_prereleases | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')
+reunion_version=$(wget -qO - https://img.shields.io/github/v/release/rehlds/reunion.svg | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')
 
 #amxx build number
 amxx_build_url='https://www.amxmodx.org/downloads-new.php?branch=master&all=1'

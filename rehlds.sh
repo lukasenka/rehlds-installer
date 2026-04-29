@@ -14,9 +14,9 @@
 # 6.4 - information for new updates now is more flexible.
 # 6.5 - patch for internet speed tester. Code more flexible.
 # 6.5.1 - 6.5.4 - bug fixes.
-# 6.6 - new links from github patched.
+# 6.6 - 6.6.2 - new links from github patched.
 
-VERSION=6.6
+VERSION=6.6.2
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -39,7 +39,7 @@ regamedll_url=$(wget -qO - https://img.shields.io/github/release/rehlds/ReGameDL
 metamodr_url=$(wget -qO - https://img.shields.io/github/release/rehlds/metamod-r.svg | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')
 
 #reunion version
-reunion_version=$(wget -qO - https://img.shields.io/github/v/release/rehlds/reunion.svg | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')
+reunion_version=$(wget -qO - https://img.shields.io/github/v/release/rehlds/reunion.svg?include_prereleases | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')
 
 #amxx build number
 amxx_build_url='https://www.amxmodx.org/downloads-new.php?branch=master&all=1'
@@ -311,7 +311,7 @@ check_app90_version()
 
 		echo "Instaliuojamas ReHLDS v. ${rehlds_url} ..."
 
-		wget https://github.com/dreamstalker/rehlds/releases/download/${rehlds_url}/rehlds-bin-${rehlds_url}.zip
+		wget https://github.com/rehlds/rehlds/releases/download/${rehlds_url}/rehlds-bin-${rehlds_url}.zip
 		unzip rehlds-bin-${rehlds_url}.zip
 		rm -rf hlsdk
 
@@ -380,7 +380,7 @@ check_app90_version()
 			echo "instaliuojamas ReGameDLL v. ${regamedll_url}..."
 			sleep 2
 			cd $INSTALL_DIR
-			wget https://github.com/s1lentq/ReGameDLL_CS/releases/download/${regamedll_url}/regamedll-bin-${regamedll_url}.zip
+			wget https://github.com/rehlds/ReGameDLL_CS/releases/download/${regamedll_url}/regamedll-bin-${regamedll_url}.zip
    
 			if [ ! -e "regamedll-bin-${regamedll_url}.zip" ]; then
 				echo "Klaida: Nepavyko gauti ReGameDLL failu is serverio. Nutraukiama..."
@@ -651,7 +651,7 @@ mkdir -p cstrike/addons
 mkdir -p cstrike/addons/metamod
 mkdir -p cstrike/addons/metamod/dlls
 fi
-wget https://github.com/dreamstalker/rehlds/releases/download/${rehlds_url}/rehlds-bin-${rehlds_url}.zip
+wget https://github.com/rehlds/rehlds/releases/download/${rehlds_url}/rehlds-bin-${rehlds_url}.zip
 unzip rehlds-bin-${rehlds_url}.zip
 rm -rf hlsdk
 
@@ -703,7 +703,7 @@ sleep 2
 
 mkdir $INSTALL_DIR/meta
 cd $INSTALL_DIR/meta
-wget https://github.com/theAsmodai/metamod-r/releases/download/${metamodr_url}/metamod-bin-${metamodr_url}.zip
+wget https://github.com/rehlds/metamod-r/releases/download/${metamodr_url}/metamod-bin-${metamodr_url}.zip
 unzip metamod-bin-${metamodr_url}.zip
 cd $INSTALL_DIR/meta/addons/metamod
 mv metamod_i386.so $INSTALL_DIR/cstrike/addons/metamod/dlls/metamod_i386s.so
@@ -743,7 +743,7 @@ echo "instaliuojamas Reunion v. ${reunion_version} ..."
 sleep 2
 mkdir $INSTALL_DIR/reu-temp
 cd $INSTALL_DIR/reu-temp
-wget https://github.com/s1lentq/reunion/releases/download/${reunion_version}/reunion-${reunion_version}.zip
+wget https://github.com/rehlds/reunion/releases/download/${reunion_version}/reunion-${reunion_version}.zip
 if [ ! -e "reunion-${reunion_version}.zip" ]; then
 	echo "Klaida: Nepavyko gauti reunion failu is github serverio. Nutraukiama..."
 	exit 1
@@ -1018,7 +1018,7 @@ if [ $(($INSTALL_TYPE&$REGAMEDLL)) != 0 ]; then
 echo "instaliuojamas ReGameDLL v. ${regamedll_url}..."
 sleep 2
 cd $INSTALL_DIR
-wget https://github.com/s1lentq/ReGameDLL_CS/releases/download/${regamedll_url}/regamedll-bin-${regamedll_url}.zip
+wget https://github.com/rehlds/ReGameDLL_CS/releases/download/${regamedll_url}/regamedll-bin-${regamedll_url}.zip
 if [ ! -e "regamedll-bin-${regamedll_url}.zip" ]; then
 	echo "Klaida: Nepavyko gauti ReGameDLL failu is serverio. Nutraukiama..."
 	exit 1
@@ -1075,7 +1075,7 @@ if [ -z "$port" ]; then
 fi
 
 echo "Naudojamas portas: $port"
-echo "cd $INSTALL_DIR && screen -A -m -d -S $SERVER_DIR ./hlds_run -game cstrike +ip $(wget -T 5 -qO - "$ip_url") +port $port +map cs_assault +maxplayers 32" >> start_line
+echo "cd $INSTALL_DIR && screen -A -m -d -S $SERVER_DIR ./hlds_run -game cstrike +ip $(wget -T 5 -qO - "$ip_url") +port $port +map de_dust +maxplayers 32" >> start_line
 
 echo "#!/bin/bash" >> start
 echo "SESSION=\$(screen -ls | egrep -o -e [0-9]+\\.$SERVER_DIR | sed -r -e \"s/[0-9]+\\.//\")" >> start

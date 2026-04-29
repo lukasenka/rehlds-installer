@@ -14,9 +14,9 @@
 # 6.4 - information for new updates now is more flexible.
 # 6.5 - patch for internet speed tester. Code more flexible.
 # 6.5.1 - 6.5.4 - bug fixes.
-# 6.6 - 6.6.2 - new links from github patched.
+# 6.6 - 6.6.3 - new links from github patched.
 
-VERSION=6.6.2
+VERSION=6.6.3
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -45,6 +45,9 @@ reunion_version=$(wget -qO - https://img.shields.io/github/v/release/rehlds/reun
 amxx_build_url='https://www.amxmodx.org/downloads-new.php?branch=master&all=1'
 html=$(curl -s "$amxx_build_url")
 amxx_build_version=$(echo "$html" | grep -oP '<strong>\K[0-9]+\.[0-9]+ - build \K[0-9]+' | awk '{print $1""$2}')
+
+#amxmodx version
+amxmodx_version=$(wget -qO - https://img.shields.io/github/v/release/alliedmodders/amxmodx.svg?include_prereleases | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')
 
 ip_url="https://api.ipify.org"
 
@@ -472,7 +475,7 @@ echo "Tavo serverio: $my_reunion_version | Naujausias: $reunion_version"
 echo "-------------------------------------------------------------------------------"
 echo "            [amxmodx]                                                          "
 echo "-------------------------------------------------------------------------------"
-echo "Tavo serverio: $amxx_version |  Naujausias: 1.10.0.$amxx_build_version"
+echo "Tavo serverio: $amxx_version |  Naujausias: $amxmodx_version"
 echo "-------------------------------------------------------------------------------"
 echo "--- Pasirinkite modifikacijas, kurios bus atnaujintos: ------------------------"
 echo "([modifikacija] | (serverio tipas)):"
@@ -917,27 +920,29 @@ fi
 cd $INSTALL_DIR
 fi
 
-echo "instaliuojamas Amxmodx v. $(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-version.txt) (Build: $(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)) ..."
+echo "instaliuojamas AmxModX v. ${amxmodx_version}..."
 sleep 2
-wget -q -P cstrike https://www.amxmodx.org/amxxdrop/$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-version.txt)/amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)-base-linux.tar.gz
-if [ ! -e "cstrike/amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)-base-linux.tar.gz" ]; then
-	echo "Klaida: Nepavyko amxmodx failu is serverio. Nutraukiama..."
-	exit 1
+wget -q -P cstrike "https://github.com/alliedmodders/amxmodx/releases/download/1.10.0.${amxx_build_version}/amxmodx-1.10.0-git${amxx_build_version}-base-linux.tar.gz"
+
+if [ ! -f "cstrike/amxmodx-1.10.0-git${amxx_build_version}-base-linux.tar.gz" ]; then
+    echo "Klaida: Nepavyko amxmodx failų iš serverio. Nutraukiama..."
+    exit 1
 fi
-tar -xzf cstrike/amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)-base-linux.tar.gz -C cstrike
-rm cstrike/amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)-base-linux.tar.gz
+tar -xzf cstrike/amxmodx-1.10.0-git${amxx_build_version}-base-linux.tar.gz -C cstrike
+rm cstrike/amxmodx-1.10.0-git${amxx_build_version}-base-linux.tar.gz
 if [ "$UPDATE" -ne 1 ]; then
 echo "linux addons/amxmodx/dlls/amxmodx_mm_i386.so" >> cstrike/addons/metamod/plugins.ini
 fi
 
 mkdir $INSTALL_DIR/temp
 cd $INSTALL_DIR/temp
-wget https://www.amxmodx.org/amxxdrop/$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-version.txt)/amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)-cstrike-linux.tar.gz
-if [ ! -e "amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)-cstrike-linux.tar.gz" ]; then
-	echo "Klaida: Nepavyko amxmodx cstrike failu is serverio. Nutraukiama..."
-	exit 1
+wget "https://github.com/alliedmodders/amxmodx/releases/download/1.10.0.${amxx_build_version}/amxmodx-1.10.0-git${amxx_build_version}-cstrike-linux.tar.gz"
+
+if [ ! -f "amxmodx-1.10.0-git${amxx_build_version}-cstrike-linux.tar.gz" ]; then
+    echo "Klaida: Nepavyko AMX Mod X cstrike failų iš serverio. Nutraukiama..."
+    exit 1
 fi
-tar -xzf amxmodx-$(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)-cstrike-linux.tar.gz
+tar -xzf amxmodx-1.10.0-git${amxx_build_version}-cstrike-linux.tar.gz
 cd $INSTALL_DIR/temp/addons/amxmodx/scripting
 mv statsx.sma $INSTALL_DIR/cstrike/addons/amxmodx/scripting/statsx.sma
 mv stats_logging.sma $INSTALL_DIR/cstrike/addons/amxmodx/scripting/stats_logging.sma
@@ -1145,10 +1150,10 @@ else
     echo "Serveris instaliuotas direktorijoje '$INSTALL_DIR'"
     
     if [ $(($INSTALL_TYPE&$REGAMEDLL)) != 0 ]; then
-        echo "[INFO] ReHLDS VERSIJA: ${rehlds_url}, AMXX VERSIJA: $(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-version.txt) (Build: $(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)), Metamod-r VERSIJA: ${metamodr_url}, Reunion VERSIJA: ${reunion_version}, ReGameDLL VERSIJA: ${regamedll_url}"
+        echo "[INFO] ReHLDS VERSIJA: ${rehlds_url}, AMXX VERSIJA: ${amxmodx_version}, Metamod-r VERSIJA: ${metamodr_url}, Reunion VERSIJA: ${reunion_version}, ReGameDLL VERSIJA: ${regamedll_url}"
         echo "-------------------------------------------------------------------------------"
     else
-        echo "[INFO] ReHLDS VERSIJA: ${rehlds_url}, AMXX VERSIJA: $(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-version.txt) (Build: $(wget -T 5 -qO - https://raw.githubusercontent.com/lukasenka/rehlds-versions/main/amxx-build.txt)), Metamod-r VERSIJA: ${metamodr_url}, Reunion VERSIJA: ${reunion_version}"
+        echo "[INFO] ReHLDS VERSIJA: ${rehlds_url}, AMXX VERSIJA: ${amxmodx_version}, Metamod-r VERSIJA: ${metamodr_url}, Reunion VERSIJA: ${reunion_version}"
         echo "-------------------------------------------------------------------------------"
     fi
 

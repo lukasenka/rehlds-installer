@@ -15,8 +15,9 @@
 # 6.5 - patch for internet speed tester. Code more flexible.
 # 6.5.1 - 6.5.4 - bug fixes.
 # 6.6 - 6.6.3 - new links from github patched.
+# 6.6.4 - Small fix patched due to instability during crash scenarios.
 
-VERSION=6.6.3
+VERSION=6.6.4
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -622,9 +623,10 @@ fi
  
 fi
 
-if [ ! -d "$INSTALL_DIR/cstrike" ] || [ ! -f "$INSTALL_DIR/hlds_run" ] || 
-[ ! -e "$INSTALL_DIR/cstrike/liblist.gam" ]; then
-    echo -e "\nKlaida: Nepavyko atsiusti serverio failu. Prasome pranesti apie si nesklanduma"
+if [ ! -d "$INSTALL_DIR/cstrike" ] || \
+   [ ! -f "$INSTALL_DIR/hlds_run" ] || \
+   [ ! -e "$INSTALL_DIR/cstrike/liblist.gam" ]; then
+        echo -e "\nKlaida: Nepavyko atsiusti serverio failu. Prasome pranesti apie si nesklanduma"
 	echo "Support discord ID: lukasenka18"
 	echo "Taip pat, pateikite terminalo isvesties kopija."
 	echo -e "Instaliacija nutraukiama...\n"
@@ -925,7 +927,7 @@ sleep 2
 wget -q -P cstrike "https://github.com/alliedmodders/amxmodx/releases/download/1.10.0.${amxx_build_version}/amxmodx-1.10.0-git${amxx_build_version}-base-linux.tar.gz"
 
 if [ ! -f "cstrike/amxmodx-1.10.0-git${amxx_build_version}-base-linux.tar.gz" ]; then
-    echo "Klaida: Nepavyko amxmodx failų iš serverio. Nutraukiama..."
+    echo "Klaida: Nepavyko amxmodx failÅ³ iÅ serverio. Nutraukiama..."
     exit 1
 fi
 tar -xzf cstrike/amxmodx-1.10.0-git${amxx_build_version}-base-linux.tar.gz -C cstrike
@@ -939,7 +941,7 @@ cd $INSTALL_DIR/temp
 wget "https://github.com/alliedmodders/amxmodx/releases/download/1.10.0.${amxx_build_version}/amxmodx-1.10.0-git${amxx_build_version}-cstrike-linux.tar.gz"
 
 if [ ! -f "amxmodx-1.10.0-git${amxx_build_version}-cstrike-linux.tar.gz" ]; then
-    echo "Klaida: Nepavyko AMX Mod X cstrike failų iš serverio. Nutraukiama..."
+    echo "Klaida: Nepavyko AMX Mod X cstrike failÅ³ iÅ serverio. Nutraukiama..."
     exit 1
 fi
 tar -xzf amxmodx-1.10.0-git${amxx_build_version}-cstrike-linux.tar.gz

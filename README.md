@@ -47,7 +47,7 @@ __game version__ - your server's ReGameDLL version. If the command doesn't work 
 
 Read more:
 * https://wiki.alliedmods.net/Commands_(amx_mod_x)#RCON_Commands
-* http://metamod.org/metamod.html#commands
+* https://lukasenka.github.io/metamod-docs/#commands
 
 ### 🔍 Keywords (SEO)
 

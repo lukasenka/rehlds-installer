@@ -5,7 +5,6 @@
 # amxmodx.lt (nebeaktyvus)
 # saimon.lt
 
-# 5.8.1 - fix for curl package missing.
 # 6.0 - port choosing enabled.
 # 6.1 - Refactored server files downloader. If the internet speed is >= 20 Mbps,
 # everything will be downloaded via SteamCMD; otherwise, from the server.
@@ -16,8 +15,9 @@
 # 6.5.1 - 6.5.4 - bug fixes.
 # 6.6 - 6.6.3 - new links from github patched.
 # 6.6.4 - Small fix patched due to instability during crash scenarios.
+# 6.7.1 - Code optimization. System notifies about GitHub issues.
 
-VERSION=6.6.4
+VERSION=6.7.1
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -41,6 +41,17 @@ metamodr_url=$(wget -qO - https://img.shields.io/github/release/rehlds/metamod-r
 
 #reunion version
 reunion_version=$(wget -qO - https://img.shields.io/github/v/release/rehlds/reunion.svg?include_prereleases | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')
+
+if [ -z "$rehlds_url" ] || [ -z "$regamedll_url" ] || [ -z "$metamodr_url" ] || [ -z "$reunion_version" ]; then
+
+    echo "[ReHLDS] Panasu, kad github serveris susiduria su trikdziais. Prasome pabandyti veliau." 
+    echo "Jei problema kartojasi, susisiekite su administracija per Discord: lukasenka18"
+    echo "-----------"
+    echo "[ReHLDS] Seems that GitHub is currently experiencing issues or is temporarily unavailable. Please try again later."
+    echo "If the problem persists, contact the administration on Discord: lukasenka18"
+    exit 1
+
+fi
 
 #amxx build number
 amxx_build_url='https://www.amxmodx.org/downloads-new.php?branch=master&all=1'
@@ -196,7 +207,7 @@ check_dir() {
 				meta_version=$(grep "Metamod-r" "$INSTALL_DIR/output.txt" | grep -o 'v[0-9.]\+' | head -n1)
 				[ -z "$meta_version" ] && meta_version="null"
 
-				rehlds_version=$(grep "ReHLDS version" "$INSTALL_DIR/output.txt" | grep -o '[0-9]\+\(\.[0-9]\+\)\+' | head -n1)
+				rehlds_version=$(grep "ReHLDS version" "$INSTALL_DIR/output.txt" | grep -o '[0-9]\+(\.[0-9]\+)\+' | head -n1)
 				[ -z "$rehlds_version" ] && rehlds_version="null"
 
 				my_reunion_version=$(grep "Reunion" "$INSTALL_DIR/output2.txt" | grep -o 'v[0-9.]\+' | head -n1)
@@ -268,152 +279,150 @@ check_dir() {
 
 check_app90_version()
 {
-	echo "[SteamCMD] Just a minute ...";
- 	sleep 2
+    echo "[SteamCMD] Just a minute ..."
+    sleep 2
 
-	STEAMCMD_PATH="$INSTALL_DIR/steamcmd/steamcmd.sh"
-	VERSION_FILE="$INSTALL_DIR/steamcmd/app90_version.txt"
+    STEAMCMD_PATH="$INSTALL_DIR/steamcmd/steamcmd.sh"
+    VERSION_FILE="$INSTALL_DIR/steamcmd/app90_version.txt"
+    APP_ID=90
 
-	APP_ID=90
+    get_current_version() {
+        "$STEAMCMD_PATH" +login anonymous +app_info_update 1 +app_info_print "$APP_ID" +quit \
+        | grep -A 5 '"branches"' \
+        | grep -m 1 '"buildid"' \
+        | grep -oP '[0-9]+'
+    }
 
-	get_current_version() {
-    		$STEAMCMD_PATH +login anonymous +app_info_update 1 +app_info_print $APP_ID +quit | grep -A 5 '"branches"' | grep -m 1 '"buildid"' | grep -oP '\d+'
-	}
+    CURRENT_VERSION=$(get_current_version)
 
-	CURRENT_VERSION=$(get_current_version)
+    if [[ -f "$VERSION_FILE" ]]; then
+        STORED_VERSION=$(cat "$VERSION_FILE")
+    else
+        STORED_VERSION=""
+    fi
 
-	if [[ -f "$VERSION_FILE" ]]; then
-    		STORED_VERSION=$(cat "$VERSION_FILE")
-	else
-    		STORED_VERSION=""
-	fi
+    if [[ "$CURRENT_VERSION" != "$STORED_VERSION" ]]; then
 
-	if [[ "$CURRENT_VERSION" != "$STORED_VERSION" ]]; then
-    		echo "[SteamCMD] New version detected for app $APP_ID: $CURRENT_VERSION"
-    		echo "$CURRENT_VERSION" > "$VERSION_FILE"
+        echo "[SteamCMD] New version detected for app $APP_ID: $CURRENT_VERSION"
+        echo "$CURRENT_VERSION" > "$VERSION_FILE"
 
-      		echo "[SteamCMD] Installing new version... Please wait."
+        echo "[SteamCMD] Installing new version... Please wait."
 
-      		cd $INSTALL_DIR/steamcmd
+        cd "$INSTALL_DIR/steamcmd" || exit 1
 
-		./steamcmd.sh +force_install_dir $INSTALL_DIR +login anonymous +app_update 90 -beta steam_legacy validate +quit
+        ./steamcmd.sh +force_install_dir "$INSTALL_DIR" +login anonymous +app_update 90 -beta steam_legacy validate +quit
 
-		EXITVAL=$?
-		if [ $EXITVAL -gt 0 ]; then
-			echo "-------------------------------------------------------------------------------"
-			echo "SteamCMD vidine klaida. Klaidos kodas: $EXITVAL"
-			echo "Instaliacija nutraukiama..."
-        		exit 1
-		fi
+        EXITVAL=$?
+        if (( EXITVAL > 0 )); then
+            echo "-------------------------------------------------------------------------------"
+            echo "SteamCMD vidine klaida. Klaidos kodas: $EXITVAL"
+            echo "Instaliacija nutraukiama..."
+            exit 1
+        fi
 
-  		if [ $(($INSTALL_TYPE&$SYSTEM_STEAMCMD)) != 0 ]; then
+        if (( (INSTALL_TYPE & SYSTEM_STEAMCMD) != 0 )); then
 
-		echo "[SteamCMD] [WARNING] Testas baigesi sekmingai, taciau reikia is naujo sudiegti ReHLDS ir ReGameDLL (jei toks buvo).";
-		sleep 2
+            echo "[SteamCMD] [WARNING] ReHLDS + ReGameDLL reinstall required."
+            sleep 2
 
-		cd $INSTALL_DIR
+            cd "$INSTALL_DIR" || exit 1
 
-		echo "Instaliuojamas ReHLDS v. ${rehlds_url} ..."
+            echo "Instaliuojamas ReHLDS v. ${rehlds_url} ..."
 
-		wget https://github.com/rehlds/rehlds/releases/download/${rehlds_url}/rehlds-bin-${rehlds_url}.zip
-		unzip rehlds-bin-${rehlds_url}.zip
-		rm -rf hlsdk
+            wget "https://github.com/rehlds/rehlds/releases/download/${rehlds_url}/rehlds-bin-${rehlds_url}.zip"
+            unzip "rehlds-bin-${rehlds_url}.zip"
+            rm -rf hlsdk
 
-		mv $INSTALL_DIR/bin/linux32/valve/dlls/director.so $INSTALL_DIR/valve/dlls/directors.so
-		cd $INSTALL_DIR/valve/dlls
-		rm director.so
-		mv directors.so director.so
+            mv "$INSTALL_DIR/bin/linux32/valve/dlls/director.so" "$INSTALL_DIR/valve/dlls/directors.so"
+            cd "$INSTALL_DIR/valve/dlls"
+            rm -f director.so
+            mv directors.so director.so
 
-		cd $INSTALL_DIR/bin/linux32
-		mv proxy.so $INSTALL_DIR/proxys.so
-		cd $INSTALL_DIR
-		rm proxy.so
-		mv proxys.so proxy.so
+            cd "$INSTALL_DIR/bin/linux32"
+            mv proxy.so "$INSTALL_DIR/proxys.so"
+            cd "$INSTALL_DIR"
+            rm -f proxy.so
+            mv proxys.so proxy.so
 
-		cd $INSTALL_DIR/bin/linux32
-		mv hltv $INSTALL_DIR/hltvs
-		cd $INSTALL_DIR
-		rm hltv
-		mv hltvs hltv
+            cd "$INSTALL_DIR/bin/linux32"
+            mv hltv "$INSTALL_DIR/hltvs"
+            cd "$INSTALL_DIR"
+            rm -f hltv
+            mv hltvs hltv
 
-		cd $INSTALL_DIR/bin/linux32
-		mv demoplayer.so $INSTALL_DIR/demoplayers.so
-		cd $INSTALL_DIR
-		rm demoplayer.so
-		mv demoplayers.so demoplayer.so
+            cd "$INSTALL_DIR/bin/linux32"
+            mv demoplayer.so "$INSTALL_DIR/demoplayers.so"
+            cd "$INSTALL_DIR"
+            rm -f demoplayer.so
+            mv demoplayers.so demoplayer.so
 
-		cd $INSTALL_DIR/bin/linux32
-		mv core.so $INSTALL_DIR/cores.so
-		cd $INSTALL_DIR
-		rm core.so
-		mv cores.so core.so
+            cd "$INSTALL_DIR/bin/linux32"
+            mv core.so "$INSTALL_DIR/cores.so"
+            cd "$INSTALL_DIR"
+            rm -f core.so
+            mv cores.so core.so
 
-		cd $INSTALL_DIR/bin/linux32
-		mv hlds_linux $INSTALL_DIR/hlds_linuxs
-		cd $INSTALL_DIR
-		rm hlds_linux
-		mv hlds_linuxs hlds_linux
-		chmod +x hlds_linux
+            cd "$INSTALL_DIR/bin/linux32"
+            mv hlds_linux "$INSTALL_DIR/hlds_linuxs"
+            cd "$INSTALL_DIR"
+            rm -f hlds_linux
+            mv hlds_linuxs hlds_linux
+            chmod +x hlds_linux
 
-		cd $INSTALL_DIR/bin/linux32
-		mv engine_i486.so $INSTALL_DIR/engine_i486s.so
-		cd $INSTALL_DIR
-		rm engine_i486.so
-		mv engine_i486s.so engine_i486.so
-		rm -rf bin
-		rm rehlds-bin-${rehlds_url}.zip
-		echo "Rehlds v. ${rehlds_url} diegimas sekmingas."
+            cd "$INSTALL_DIR/bin/linux32"
+            mv engine_i486.so "$INSTALL_DIR/engine_i486s.so"
+            cd "$INSTALL_DIR"
+            rm -f engine_i486.so
+            mv engine_i486s.so engine_i486.so
 
-		if [ -d "cstrike/game.cfg" ]; then
-			cd $INSTALL_DIR/cstrike
-   
-			if [ -e "game.cfg" ]; then
-    				rm game.cfg
-			fi
+            rm -rf bin
+            rm -f "rehlds-bin-${rehlds_url}.zip"
 
-			if [ -e "game_init.cfg" ]; then
-    				rm game_init.cfg
-			fi
+            echo "ReHLDS v. ${rehlds_url} diegimas sekmingas."
 
-			if [ -e "delta.lst" ]; then
-    				rm delta.lst
-			fi
+            if [[ -d "$INSTALL_DIR/cstrike" ]]; then
 
-			cd $INSTALL_DIR
+                cd "$INSTALL_DIR/cstrike" || exit 1
 
-			echo "instaliuojamas ReGameDLL v. ${regamedll_url}..."
-			sleep 2
-			cd $INSTALL_DIR
-			wget https://github.com/rehlds/ReGameDLL_CS/releases/download/${regamedll_url}/regamedll-bin-${regamedll_url}.zip
-   
-			if [ ! -e "regamedll-bin-${regamedll_url}.zip" ]; then
-				echo "Klaida: Nepavyko gauti ReGameDLL failu is serverio. Nutraukiama..."
-				exit 1
-			fi
-   
-			unzip regamedll-bin-${regamedll_url}.zip
-			rm -rf cssdk
-			cd $INSTALL_DIR/bin/linux32/cstrike/dlls
-			mv cs.so $INSTALL_DIR/cstrike/dlls/css.so
-			cd $INSTALL_DIR/cstrike/dlls
-			rm cs.so
-			mv css.so cs.so
-			cd $INSTALL_DIR/bin/linux32/cstrike
-			mv game_init.cfg $INSTALL_DIR/cstrike
-			mv game.cfg $INSTALL_DIR/cstrike
-			mv delta.lst $INSTALL_DIR/cstrike
-			cd $INSTALL_DIR
-			rm -rf bin
-			rm regamedll-bin-${regamedll_url}.zip
-	fi
+                rm -f game.cfg game_init.cfg delta.lst
 
-fi
-  
-else
-    	echo "[SteamCMD] Version has not changed for app $APP_ID: $CURRENT_VERSION"
-fi
+                cd "$INSTALL_DIR" || exit 1
+
+                echo "Instaliuojamas ReGameDLL v. ${regamedll_url}..."
+                sleep 2
+
+                wget "https://github.com/rehlds/ReGameDLL_CS/releases/download/${regamedll_url}/regamedll-bin-${regamedll_url}.zip"
+
+                if [[ ! -f "regamedll-bin-${regamedll_url}.zip" ]]; then
+                    echo "Klaida: Nepavyko gauti ReGameDLL failu."
+                    exit 1
+                fi
+
+                unzip "regamedll-bin-${regamedll_url}.zip"
+                rm -rf cssdk
+
+                cd "$INSTALL_DIR/bin/linux32/cstrike/dlls"
+                mv cs.so "$INSTALL_DIR/cstrike/dlls/css.so"
+
+                cd "$INSTALL_DIR/cstrike/dlls"
+                rm -f cs.so
+                mv css.so cs.so
+
+                cd "$INSTALL_DIR/bin/linux32/cstrike"
+                mv game_init.cfg "$INSTALL_DIR/cstrike"
+                mv game.cfg "$INSTALL_DIR/cstrike"
+                mv delta.lst "$INSTALL_DIR/cstrike"
+
+                cd "$INSTALL_DIR"
+                rm -rf bin
+                rm -f "regamedll-bin-${regamedll_url}.zip"
+            fi
+        fi
+
+    else
+        echo "[SteamCMD] Version has not changed for app $APP_ID: $CURRENT_VERSION"
+    fi
 }
-
 
 check_version
 check_packages
@@ -453,38 +462,38 @@ REGAMEDLL=$((1<<4))
 SYSTEM_STEAMCMD=$((1<<5))
 
 if [ "$UPDATE" -eq 0 ] || [ "$UPDATE_RDLL" -eq 0 ]; then
-echo "-------------------------------------------------------------------------------"
-echo "Pasirinkite modifikacijas, kurios bus instaliuotos."
-echo "-------------------------------------------------------------------------------"
-echo "([modifikacija] | (serverio tipas)):"
-echo "1. [rehlds][metamod-r][reunion][amxmodx] | (steam / non-steam) (Rekomenduojama)"
-echo "2. [rehlds][metamod-r][reunion][amxmodx] + ReGameDLL | (steam / non-steam)"
-echo "-------------------------------------------------------------------------------"
+	echo "-------------------------------------------------------------------------------"
+	echo "Pasirinkite modifikacijas, kurios bus instaliuotos."
+	echo "-------------------------------------------------------------------------------"
+	echo "([modifikacija] | (serverio tipas)):"
+	echo "1. [rehlds][metamod-r][reunion][amxmodx] | (steam / non-steam) (Rekomenduojama)"
+	echo "2. [rehlds][metamod-r][reunion][amxmodx] + ReGameDLL | (steam / non-steam)"
+	echo "-------------------------------------------------------------------------------"
 else
-echo "-------------------------------------------------------------------------------"
-echo "            [rehlds]                                                           "
-echo "-------------------------------------------------------------------------------"
-echo "Tavo serverio: $rehlds_version | Naujausias: $rehlds_url"
-echo "-------------------------------------------------------------------------------"
-echo "            [metamod-r]                                                        "
-echo "-------------------------------------------------------------------------------"
-echo "Tavo serverio: $meta_version | Naujausias: $metamodr_url"
-echo "-------------------------------------------------------------------------------"
-echo "            [reunion]                    	                                     "
-echo "-------------------------------------------------------------------------------"
-echo "Tavo serverio: $my_reunion_version | Naujausias: $reunion_version" 
-echo "-------------------------------------------------------------------------------"
-echo "            [amxmodx]                                                          "
-echo "-------------------------------------------------------------------------------"
-echo "Tavo serverio: $amxx_version |  Naujausias: $amxmodx_version"
-echo "-------------------------------------------------------------------------------"
-echo "--- Pasirinkite modifikacijas, kurios bus atnaujintos: ------------------------"
-echo "([modifikacija] | (serverio tipas)):"
-echo "1. [--> UPDATE <-- ] [rehlds][metamod-r][reunion][amxmodx] | (steam / non-steam)"
-echo "2. [--> UPDATE <-- ] [rehlds][metamod-r][reunion][amxmodx] + ReGameDLL | (steam / non-steam)"
-echo "-------------------------------------------------------------------------------"
-echo "3. [--> UPDATE <-- ] Sistemos failu naujinys [SteamCMD] / System files update [SteamCMD only]"
-echo "-------------------------------------------------------------------------------"
+	echo "-------------------------------------------------------------------------------"
+	echo "            [rehlds]                                                           "
+	echo "-------------------------------------------------------------------------------"
+	echo "Tavo serverio: $rehlds_version | Naujausias: $rehlds_url"
+	echo "-------------------------------------------------------------------------------"
+	echo "            [metamod-r]                                                        "
+	echo "-------------------------------------------------------------------------------"
+	echo "Tavo serverio: $meta_version | Naujausias: $metamodr_url"
+	echo "-------------------------------------------------------------------------------"
+	echo "            [reunion]                    	                                     "
+	echo "-------------------------------------------------------------------------------"
+	echo "Tavo serverio: $my_reunion_version | Naujausias: $reunion_version" 
+	echo "-------------------------------------------------------------------------------"
+	echo "            [amxmodx]                                                          "
+	echo "-------------------------------------------------------------------------------"
+	echo "Tavo serverio: $amxx_version |  Naujausias: $amxmodx_version"
+	echo "-------------------------------------------------------------------------------"
+	echo "--- Pasirinkite modifikacijas, kurios bus atnaujintos: ------------------------"
+	echo "([modifikacija] | (serverio tipas)):"
+	echo "1. [--> UPDATE <-- ] [rehlds][metamod-r][reunion][amxmodx] | (steam / non-steam)"
+	echo "2. [--> UPDATE <-- ] [rehlds][metamod-r][reunion][amxmodx] + ReGameDLL | (steam / non-steam)"
+	echo "-------------------------------------------------------------------------------"
+	echo "3. [--> UPDATE <-- ] Sistemos failu naujinys [SteamCMD] / System files update [SteamCMD only]"
+	echo "-------------------------------------------------------------------------------"
 fi
 read -p "Iveskite pasirinkta punkta: " NUMBER
 
@@ -552,7 +561,7 @@ check_speed() {
 
     raw_speed=$(timeout 15 wget -O /dev/null -o - http://speedtest.tele2.net/10MB.zip 2>&1 \
         | tr -d '\r' \
-        | awk 'match($0, /\(([0-9.]+ [KM]B\/s)\)/, a) { print a[1] }' \
+        | awk 'match($0, /(([0-9.]+ [KM]B\/s))/, a) { print a[1] }' \
         | tail -n 1)
 
     if [ -z "$raw_speed" ]; then
@@ -927,7 +936,7 @@ sleep 2
 wget -q -P cstrike "https://github.com/alliedmodders/amxmodx/releases/download/1.10.0.${amxx_build_version}/amxmodx-1.10.0-git${amxx_build_version}-base-linux.tar.gz"
 
 if [ ! -f "cstrike/amxmodx-1.10.0-git${amxx_build_version}-base-linux.tar.gz" ]; then
-    echo "Klaida: Nepavyko amxmodx failÅ³ iÅ serverio. Nutraukiama..."
+    echo "Klaida: Nepavyko amxmodx failĆ…Ā³ iĆ…ļ£¼ serverio. Nutraukiama..."
     exit 1
 fi
 tar -xzf cstrike/amxmodx-1.10.0-git${amxx_build_version}-base-linux.tar.gz -C cstrike
@@ -941,7 +950,7 @@ cd $INSTALL_DIR/temp
 wget "https://github.com/alliedmodders/amxmodx/releases/download/1.10.0.${amxx_build_version}/amxmodx-1.10.0-git${amxx_build_version}-cstrike-linux.tar.gz"
 
 if [ ! -f "amxmodx-1.10.0-git${amxx_build_version}-cstrike-linux.tar.gz" ]; then
-    echo "Klaida: Nepavyko AMX Mod X cstrike failÅ³ iÅ serverio. Nutraukiama..."
+    echo "Klaida: Nepavyko AMX Mod X cstrike failĆ…Ā³ iĆ…ļ£¼ serverio. Nutraukiama..."
     exit 1
 fi
 tar -xzf amxmodx-1.10.0-git${amxx_build_version}-cstrike-linux.tar.gz

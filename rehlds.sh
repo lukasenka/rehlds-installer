@@ -16,8 +16,9 @@
 # 6.6 - 6.6.3 - new links from github patched.
 # 6.6.4 - Small fix patched due to instability during crash scenarios.
 # 6.7.1 - Code optimization. System notifies about GitHub issues.
+# 6.7.2 - Code optimization. cs.so and delta.lst are no longer pre-installed; they are now installed directly from the build.
 
-VERSION=6.7.1
+VERSION=6.7.2
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -323,9 +324,19 @@ check_app90_version()
         if (( (INSTALL_TYPE & SYSTEM_STEAMCMD) != 0 )); then
 
             echo "[SteamCMD] [WARNING] ReHLDS + ReGameDLL reinstall required."
-            sleep 2
 
             cd "$INSTALL_DIR" || exit 1
+
+	    if [ ! -f "$INSTALL_DIR/cstrike/dlls/cs.so.original" ]; then
+    			cp "$INSTALL_DIR/cstrike/dlls/cs.so" \
+       				"$INSTALL_DIR/cstrike/dlls/cs.so.original"
+	    fi
+
+	    if [ ! -f "$INSTALL_DIR/cstrike/delta.lst.original" ]; then
+   			cp "$INSTALL_DIR/cstrike/delta.lst" \
+       				"$INSTALL_DIR/cstrike/delta.lst.original"
+	    fi
+            sleep 2
 
             echo "Instaliuojamas ReHLDS v. ${rehlds_url} ..."
 
@@ -384,11 +395,18 @@ check_app90_version()
 
                 cd "$INSTALL_DIR/cstrike" || exit 1
 
-                rm -f game.cfg game_init.cfg delta.lst
+                rm -f game.cfg game_init.cfg
 
                 cd "$INSTALL_DIR" || exit 1
 
                 echo "Instaliuojamas ReGameDLL v. ${regamedll_url}..."
+
+                cp -f "$INSTALL_DIR/cstrike/dlls/cs.so" \
+      			"$INSTALL_DIR/cstrike/dlls/cs.so.original"
+
+	    	cp -f "$INSTALL_DIR/cstrike/delta.lst" \
+      			"$INSTALL_DIR/cstrike/delta.lst.original"
+
                 sleep 2
 
                 wget "https://github.com/rehlds/ReGameDLL_CS/releases/download/${regamedll_url}/regamedll-bin-${regamedll_url}.zip"
@@ -401,18 +419,20 @@ check_app90_version()
                 unzip "regamedll-bin-${regamedll_url}.zip"
                 rm -rf cssdk
 
-                cd "$INSTALL_DIR/bin/linux32/cstrike/dlls"
-                mv cs.so "$INSTALL_DIR/cstrike/dlls/css.so"
+                # ReGameDLL cs.so
+		cp -f \
+    			"$INSTALL_DIR/bin/linux32/cstrike/dlls/cs.so" \
+    			"$INSTALL_DIR/cstrike/dlls/cs.so"
 
-                cd "$INSTALL_DIR/cstrike/dlls"
-                rm -f cs.so
-                mv css.so cs.so
+		# ReGameDLL delta.lst
+		cp -f \
+    			"$INSTALL_DIR/bin/linux32/cstrike/delta.lst" \
+    			"$INSTALL_DIR/cstrike/delta.lst"
 
                 cd "$INSTALL_DIR/bin/linux32/cstrike"
                 mv game_init.cfg "$INSTALL_DIR/cstrike"
                 mv game.cfg "$INSTALL_DIR/cstrike"
-                mv delta.lst "$INSTALL_DIR/cstrike"
-
+       
                 cd "$INSTALL_DIR"
                 rm -rf bin
                 rm -f "regamedll-bin-${regamedll_url}.zip"
@@ -918,17 +938,19 @@ if [ -e "game_init.cfg" ]; then
     rm game_init.cfg
 fi
 
-if [ -e "delta.lst" ]; then
-    rm delta.lst
+cd $INSTALL_DIR
+
+if [ -f "$INSTALL_DIR/cstrike/dlls/cs.so.original" ]; then
+    cp -f "$INSTALL_DIR/cstrike/dlls/cs.so.original" \
+          "$INSTALL_DIR/cstrike/dlls/cs.so"
 fi
 
-cd $INSTALL_DIR/cstrike/dlls
-rm cs.so
-cd $INSTALL_DIR
-wget -q -P cstrike/dlls https://github.com/lukasenka/rehlds-installer/raw/main/cs.so
-wget -q -P cstrike https://github.com/lukasenka/rehlds-installer/raw/main/delta.lst
+if [ -f "$INSTALL_DIR/cstrike/delta.lst.original" ]; then
+    cp -f "$INSTALL_DIR/cstrike/delta.lst.original" \
+          "$INSTALL_DIR/cstrike/delta.lst"
 fi
 cd $INSTALL_DIR
+fi
 fi
 
 echo "instaliuojamas AmxModX v. ${amxmodx_version}..."
@@ -936,7 +958,7 @@ sleep 2
 wget -q -P cstrike "https://github.com/alliedmodders/amxmodx/releases/download/1.10.0.${amxx_build_version}/amxmodx-1.10.0-git${amxx_build_version}-base-linux.tar.gz"
 
 if [ ! -f "cstrike/amxmodx-1.10.0-git${amxx_build_version}-base-linux.tar.gz" ]; then
-    echo "Klaida: Nepavyko amxmodx failĆ…Ā³ iĆ…ļ£¼ serverio. Nutraukiama..."
+    echo "Klaida: Nepavyko amxmodx failÄ†ā€¦Ä€Ā³ iÄ†ā€¦Ä¼Ā£Ā¼ serverio. Nutraukiama..."
     exit 1
 fi
 tar -xzf cstrike/amxmodx-1.10.0-git${amxx_build_version}-base-linux.tar.gz -C cstrike
@@ -950,7 +972,7 @@ cd $INSTALL_DIR/temp
 wget "https://github.com/alliedmodders/amxmodx/releases/download/1.10.0.${amxx_build_version}/amxmodx-1.10.0-git${amxx_build_version}-cstrike-linux.tar.gz"
 
 if [ ! -f "amxmodx-1.10.0-git${amxx_build_version}-cstrike-linux.tar.gz" ]; then
-    echo "Klaida: Nepavyko AMX Mod X cstrike failĆ…Ā³ iĆ…ļ£¼ serverio. Nutraukiama..."
+    echo "Klaida: Nepavyko AMX Mod X cstrike failÄ†ā€¦Ä€Ā³ iÄ†ā€¦Ä¼Ā£Ā¼ serverio. Nutraukiama..."
     exit 1
 fi
 tar -xzf amxmodx-1.10.0-git${amxx_build_version}-cstrike-linux.tar.gz
@@ -1032,8 +1054,21 @@ fi
 
 if [ $(($INSTALL_TYPE&$REGAMEDLL)) != 0 ]; then
 echo "instaliuojamas ReGameDLL v. ${regamedll_url}..."
-sleep 2
+
 cd $INSTALL_DIR
+
+if [ ! -f "$INSTALL_DIR/cstrike/dlls/cs.so.original" ]; then
+    cp "$INSTALL_DIR/cstrike/dlls/cs.so" \
+       "$INSTALL_DIR/cstrike/dlls/cs.so.original"
+fi
+
+if [ ! -f "$INSTALL_DIR/cstrike/delta.lst.original" ]; then
+    cp "$INSTALL_DIR/cstrike/delta.lst" \
+       "$INSTALL_DIR/cstrike/delta.lst.original"
+fi
+
+sleep 2
+
 wget https://github.com/rehlds/ReGameDLL_CS/releases/download/${regamedll_url}/regamedll-bin-${regamedll_url}.zip
 if [ ! -e "regamedll-bin-${regamedll_url}.zip" ]; then
 	echo "Klaida: Nepavyko gauti ReGameDLL failu is serverio. Nutraukiama..."
@@ -1041,15 +1076,20 @@ if [ ! -e "regamedll-bin-${regamedll_url}.zip" ]; then
 fi
 unzip regamedll-bin-${regamedll_url}.zip
 rm -rf cssdk
-cd $INSTALL_DIR/bin/linux32/cstrike/dlls
-mv cs.so $INSTALL_DIR/cstrike/dlls/css.so
-cd $INSTALL_DIR/cstrike/dlls
-rm cs.so
-mv css.so cs.so
 cd $INSTALL_DIR/bin/linux32/cstrike
 mv game_init.cfg $INSTALL_DIR/cstrike
 mv game.cfg $INSTALL_DIR/cstrike
-mv delta.lst $INSTALL_DIR/cstrike
+
+# ReGameDLL cs.so
+cp -f \
+    "$INSTALL_DIR/bin/linux32/cstrike/dlls/cs.so" \
+    "$INSTALL_DIR/cstrike/dlls/cs.so"
+
+# ReGameDLL delta.lst
+cp -f \
+    "$INSTALL_DIR/bin/linux32/cstrike/delta.lst" \
+    "$INSTALL_DIR/cstrike/delta.lst"
+
 cd $INSTALL_DIR
 rm -rf bin
 rm regamedll-bin-${regamedll_url}.zip
@@ -1095,13 +1135,11 @@ echo "cd $INSTALL_DIR && screen -A -m -d -S $SERVER_DIR ./hlds_run -game cstrike
 
 echo "#!/bin/bash" >> start
 echo "SESSION=\$(screen -ls | egrep -o -e [0-9]+\\.$SERVER_DIR | sed -r -e \"s/[0-9]+\\.//\")" >> start
-echo "if [ \"\$SESSION\" == \"$SERVER_DIR\" ]; then" >> start
-echo "	screen -dr $SERVER_DIR" >> start
-echo "else" >> start
+echo "if [ \"\$SESSION\" != \"$SERVER_DIR\" ]; then" >> start
 echo "	eval \$(cat start_line)" >> start
 echo "	sleep 1" >> start
-echo "	screen -dr $SERVER_DIR" >> start
 echo "fi" >> start
+echo "screen -r $SERVER_DIR" >> start
 echo "exit" >> start
 chmod +x start
 
@@ -1110,7 +1148,7 @@ echo "SESSION=\$(screen -ls | egrep -o -e [0-9]+\\.$SERVER_DIR | sed -r -e \"s/[
 echo "SERVER_NAME=\$(cat cstrike/server.cfg | egrep \"hostname\\s+\\\"[^\\\"]+\\\"\" | sed \"s/hostname //\" | tr -d \"\\\"\\r\")" >> stop
 echo "STATUS=\"\"" >> stop
 echo "if [ \"\$SESSION\" == \"$SERVER_DIR\" ]; then" >> stop
-echo "	screen -S $SERVER_DIR -X stuff $(echo -e "quit\r")" >> stop
+echo "	screen -S $SERVER_DIR -p 0 -X stuff \$'quit\\r'" >> stop
 echo "	STATUS=\"sustabdytas\"" >> stop
 echo "else" >> stop
 echo "	STATUS=\"nera ijungtas, tad negalima jo sustabdyti\"" >> stop

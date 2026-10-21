@@ -17,8 +17,9 @@
 # 6.6.4 - Small fix patched due to instability during crash scenarios.
 # 6.7.1 - Code optimization. System notifies about GitHub issues.
 # 6.7.2 - Code optimization. cs.so and delta.lst are no longer pre-installed; they are now installed directly from the build.
+# 6.7.3 - Code optimization. Updated the download link to the latest patched version from AMX Mod X GitHub.
 
-VERSION=6.7.2
+VERSION=6.7.3
 
 SCRIPT_NAME=`basename $0`
 MAIN_DIR=$( getent passwd "$USER" | cut -d: -f6 )
@@ -55,9 +56,7 @@ if [ -z "$rehlds_url" ] || [ -z "$regamedll_url" ] || [ -z "$metamodr_url" ] || 
 fi
 
 #amxx build number
-amxx_build_url='https://www.amxmodx.org/downloads-new.php?branch=master&all=1'
-html=$(curl -s "$amxx_build_url")
-amxx_build_version=$(echo "$html" | grep -oP '<strong>\K[0-9]+\.[0-9]+ - build \K[0-9]+' | awk '{print $1""$2}')
+amxx_build_version=$(wget -qO - 'https://img.shields.io/github/v/release/alliedmodders/amxmodx.svg?include_prereleases' | grep -oP 'release: v[0-9.]*\.\K[0-9]+' | head -n1)
 
 #amxmodx version
 amxmodx_version=$(wget -qO - https://img.shields.io/github/v/release/alliedmodders/amxmodx.svg?include_prereleases | grep -oP '(?<=release: v)[0-9.]*(?=<\/title>)')
@@ -958,7 +957,7 @@ sleep 2
 wget -q -P cstrike "https://github.com/alliedmodders/amxmodx/releases/download/1.10.0.${amxx_build_version}/amxmodx-1.10.0-git${amxx_build_version}-base-linux.tar.gz"
 
 if [ ! -f "cstrike/amxmodx-1.10.0-git${amxx_build_version}-base-linux.tar.gz" ]; then
-    echo "Klaida: Nepavyko amxmodx failÄ†ā€¦Ä€Ā³ iÄ†ā€¦Ä¼Ā£Ā¼ serverio. Nutraukiama..."
+    echo "Klaida: Nepavyko amxmodx failu is serverio serverio. Nutraukiama..."
     exit 1
 fi
 tar -xzf cstrike/amxmodx-1.10.0-git${amxx_build_version}-base-linux.tar.gz -C cstrike
@@ -972,7 +971,7 @@ cd $INSTALL_DIR/temp
 wget "https://github.com/alliedmodders/amxmodx/releases/download/1.10.0.${amxx_build_version}/amxmodx-1.10.0-git${amxx_build_version}-cstrike-linux.tar.gz"
 
 if [ ! -f "amxmodx-1.10.0-git${amxx_build_version}-cstrike-linux.tar.gz" ]; then
-    echo "Klaida: Nepavyko AMX Mod X cstrike failÄ†ā€¦Ä€Ā³ iÄ†ā€¦Ä¼Ā£Ā¼ serverio. Nutraukiama..."
+    echo "Klaida: Nepavyko AMX Mod X cstrike failu is serverio. Nutraukiama..."
     exit 1
 fi
 tar -xzf amxmodx-1.10.0-git${amxx_build_version}-cstrike-linux.tar.gz
